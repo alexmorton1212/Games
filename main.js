@@ -173,7 +173,10 @@ function selectLetter() {
     }
 }
 
+// Check Solution Here
 function selectTile() {
+
+    console.log(boardAnswer);
 
     // only do stuff if we didn't click on one of the provided answer tiles
 
@@ -200,6 +203,8 @@ function selectTile() {
                 letterSelected = null;
 
                 if (boardAnswer.join('') == checkSolution) {
+
+                    console.log(boardAnswer);
 
                     tileArray.forEach((t) => t.classList.add("tile-game-done"));
 
@@ -636,6 +641,10 @@ function onNewButton() {
 
         letters[i-1].id = i.toString() + letterlist[i - 1];
         letters[i-1].innerText = letterlist[i - 1];
+
+        if (!letters[i-1].classList.contains("letter-unused")) {
+            letters[i-1].classList.add("letter-unused");
+        }
 
     }
 
