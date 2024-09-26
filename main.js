@@ -1,5 +1,8 @@
 
+// DATA
+
 import data from "./data.json" with {type: "json"};
+
 
 // FRONT-END PUZZLE
 
@@ -11,14 +14,18 @@ var tileArray = Array();
 let pairedTileList = ["0-3", "1-0", "0-4", "1-1", "1-3", "2-0", "1-4",
     "2-1", "2-3", "3-0", "2-4", "3-1", "3-3", "4-0", "3-4", "4-1"];
 var pairedTile = null;
+var difficulty = "HARD";
+
 
 // BACK-END PUZZLE
 
 var json = getJSON(data);
 var words = getPuzzleWords(json);
-var board = setBoard(words);
+var board = setBoard(words, difficulty);
 var checkSolution = setSolution(words);
 var letterlist = setLetterList(words);
+setGivenBoardAnswer();
+
 
 // BUTTONS
 
@@ -33,15 +40,33 @@ difficultyButton.addEventListener('click', onButtonClick);
 const modeButton = document.querySelector('#mode-button');
 modeButton.addEventListener('click', onButtonClick);
 
-setGivenBoardAnswer();
+
+// START GAME
 
 window.onload = function () {
     setGame();
 }
 
+
+// FRONT-END FUNCTIONS
+
 function setGame() {
 
-    // Letter Tiles
+    createLetterTiles();
+    createBoard();
+
+}
+
+function createLetterTiles() {
+
+    let letterTiles = document.querySelectorAll('[class*="letter"]');
+
+
+    // if not first game (difficulty change)
+
+    if (letterTiles.length != 0) {
+        letterTiles.forEach( function (item) { item.remove(); });
+    }
 
     for (let i = 1; i <= letterlist.length; i++) {
 
@@ -50,10 +75,25 @@ function setGame() {
         let letter = document.createElement("div");
         letter.id = i.toString() + letterlist[i - 1];
         letter.innerText = letterlist[i - 1];
+
         letter.addEventListener("click", selectLetter);
+
+        document.addEventListener('click', (e) => {
+            if (e.target.nodeName === 'BODY') {
+                letter.classList.remove('letter-selected');  
+                letterSelected = null;
+            }
+        });
+
         letter.classList.add("letter");
+        letter.classList.add("letter-unused");
         document.getElementById("letter-panel").appendChild(letter);
     }
+
+
+}
+
+function createBoard() {
 
     // Board
 
@@ -69,15 +109,6 @@ function setGame() {
                 tile.innerText = board[r][c];
                 tile.classList.add("tile-start");
 
-            } else {
-
-                let ends = [3,4,5,6,8,9,10,11,13,14,15,16,18,19,20,21];
-                let index = (5*r)+c;
-
-                if (ends.includes(index)) {
-                    tile.classList.add(getColor(tile, index));
-                }
-
             }
 
             tile.addEventListener("click", selectTile);
@@ -88,6 +119,7 @@ function setGame() {
 
         }
     }
+
 }
 
 function selectLetter() {
@@ -129,9 +161,13 @@ function selectLetter() {
             // if selected letter is not already selected
             // then deselect the first letter and select the new one
 
-            letterSelected.classList.remove("letter-selected");
-            letterSelected = this;
-            this.classList.add("letter-selected");
+            if (this.classList.contains("letter-unused")) {
+
+                letterSelected.classList.remove("letter-selected");
+                letterSelected = this;
+                this.classList.add("letter-selected");
+
+            }
 
         }
     }
@@ -160,6 +196,7 @@ function selectTile() {
                 letterSelected.classList.remove("letter-selected");
                 letterSelected.innerText = null;
                 letterSelected.classList.add("letter-used");
+                letterSelected.classList.remove("letter-unused");
                 letterSelected = null;
 
                 if (boardAnswer.join('') == checkSolution) {
@@ -178,17 +215,11 @@ function selectTile() {
             if (letterSelected == null) {
 
                 tileSelected = this;
-
                 removeBoard(tileSelected.id);
-
                 tileSelected.classList.remove("tile-used");
-
-                //getNumber(tileSelected);
-
                 tileSelected.innerText = null;
 
             }
-
 
         }
 
@@ -228,6 +259,7 @@ function removeBoard(tileID) {
     let letterID = boardArray[index];
     let letter = document.getElementById(letterID);
     letter.classList.remove("letter-used");
+    letter.classList.add("letter-unused");
     letter.innerText = letterID.slice(-1);
 
     if (pairedTileList.includes(tileID)) {
@@ -280,85 +312,97 @@ function getBoardIndex(tileID) {
 
 }
 
-// STILL WORKING HERE
 
-function getColor(tile, index) {
+// BACK-END FUNCTIONS
 
+function setBoard(words, diff) {
+
+    if (diff == "HARD") {
+
+        let w1_temp = words['words_1'].toUpperCase();
+        let w2 = "-----";
+        let w3 = "-----";
+        let w4 = "-----";
+        let w5_temp = words['words_5'].toUpperCase();
     
-    if (index == 3 || index == 5) {return "tile-ends-1";}
-    if (index == 4 || index == 6) {return "tile-ends-2";}
-    if (index == 8 || index == 10) {return "tile-ends-3";}
-    if (index == 9 || index == 11) {return "tile-ends-4";}
-    if (index == 13 || index == 15) {return "tile-ends-5";}
-    if (index == 14 || index == 16) {return "tile-ends-6";}
-    if (index == 18 || index == 20) {return "tile-ends-7";}
-    if (index == 19 || index == 21) {return "tile-ends-8";}
+        let w1_a = w1_temp[0];
+        let w1_b = w1_temp[1];
+        let w1 = w1_a + w1_b + "---";
     
+        let w5_a = w5_temp[3];
+        let w5_b = w5_temp[4];
+        let w5 = "---" + w5_a + w5_b;
+    
+        return [w1,w2,w3,w4,w5];
+        //return ["LE---","-----","-----","-----","---OR"];
 
-    /*
-    if (index == 3 || index == 5) {tile.innerText = 1; return "tile-ends-1";}
-    if (index == 4 || index == 6) {tile.innerText = 2; return "tile-ends-2";}
-    if (index == 8 || index == 10) {tile.innerText = 3; return "tile-ends-3";}
-    if (index == 9 || index == 11) {tile.innerText = 4; return "tile-ends-4";}
-    if (index == 13 || index == 15) {tile.innerText = 5; return "tile-ends-5";}
-    if (index == 14 || index == 16) {tile.innerText = 6; return "tile-ends-6";}
-    if (index == 18 || index == 20) {tile.innerText = 7; return "tile-ends-7";}
-    if (index == 19 || index == 21) {tile.innerText = 8; return "tile-ends-8";}
-    */
+    }
 
-}
+    if (diff == "MEDIUM") {
 
-// STILL WORKING HERE
+        let w1_temp = words['words_1'].toUpperCase();
+        let w2_temp = words['words_2'].toUpperCase();
+        let w3_temp = words['words_3'].toUpperCase();
+        let w4_temp = words['words_4'].toUpperCase();
+        let w5_temp = words['words_5'].toUpperCase();
+    
+        let w1_a = w1_temp[0];
+        let w1_b = w1_temp[1];
+        let w1 = w1_a + w1_b + "---";
 
-function getNumber(tile) {
+        let w2_a = w2_temp[3];
+        let w2 = "---" + w2_a + "-";
 
-    index = getBoardIndex(tile.id);
+        let w3_a = w3_temp[0];
+        let w3_d = w3_temp[4];
+        let w3 = w3_a + "---" + w3_d;
 
-    if (index == 3 || index == 5) {tile.innerText = 1; return "tile-ends-1";}
-    if (index == 4 || index == 6) {tile.innerText = 2; return "tile-ends-2";}
-    if (index == 8 || index == 10) {tile.innerText = 3; return "tile-ends-3";}
-    if (index == 9 || index == 11) {tile.innerText = 4; return "tile-ends-4";}
-    if (index == 13 || index == 15) {tile.innerText = 5; return "tile-ends-5";}
-    if (index == 14 || index == 16) {tile.innerText = 6; return "tile-ends-6";}
-    if (index == 18 || index == 20) {tile.innerText = 7; return "tile-ends-7";}
-    if (index == 19 || index == 21) {tile.innerText = 8; return "tile-ends-8";}
+        let w4_b = w4_temp[1];
+        let w4 = "-" + w4_b + "---";
+    
+        let w5_a = w5_temp[3];
+        let w5_b = w5_temp[4];
+        let w5 = "---" + w5_a + w5_b;
 
-}
+        return [w1,w2,w3,w4,w5];
+        //return ["LE---","---A-","A---L","-L---","---OR"];
 
-// DATA BASED FUNCTION
+    }
 
-function setBoard(words) {
+    if (diff == "EASY") {
 
-    let w1_temp = words['words_1'].toUpperCase();
-    let w2 = "-----";
-    let w3 = "-----";
-    let w4 = "-----";
-    //let w2_temp = words['words_2'].toUpperCase();
-    //let w3_temp = words['words_3'].toUpperCase();
-    //let w4_temp = words['words_4'].toUpperCase();
-    let w5_temp = words['words_5'].toUpperCase();
+        let w1_temp = words['words_1'].toUpperCase();
+        let w2_temp = words['words_2'].toUpperCase();
+        let w3_temp = words['words_3'].toUpperCase();
+        let w4_temp = words['words_4'].toUpperCase();
+        let w5_temp = words['words_5'].toUpperCase();
+    
+        let w1_a = w1_temp[0];
+        let w1_b = w1_temp[1];
+        let w1 = w1_a + w1_b + "---";
 
-    let w1_a = w1_temp[0];
-    let w1_b = w1_temp[1];
-    let w1 = w1_a + w1_b + "---";
+        let w2_a = w2_temp[3];
+        let w2_b = w2_temp[4];
+        let w2 = "---" + w2_a + w2_b;
 
-    //let w2_a = w2_temp[4];
-    //let w2 = "----" + w2_a;
+        let w3_a = w3_temp[0];
+        let w3_b = w3_temp[1];
+        let w3_c = w3_temp[3];
+        let w3_d = w3_temp[4];
+        let w3 = w3_a + w3_b + "-" + w3_c + w3_d;
 
-    //let w3_a = w3_temp[3];
-    //let w3_b = w3_temp[4];
-    //let w3 = w3_a + "---" + w3_b;
+        let w4_a = w4_temp[0];
+        let w4_b = w4_temp[1];
+        let w4 = w4_a + w4_b + "---";
+    
+        let w5_a = w5_temp[3];
+        let w5_b = w5_temp[4];
+        let w5 = "---" + w5_a + w5_b;
+    
+        return [w1,w2,w3,w4,w5];
+        //return ["LE---","---AN","AN-EL","EL---","---OR"];
 
-    //let w4_a = w4_temp[0];
-    //let w4 = w4_a + "----";
-
-    let w5_a = w5_temp[3];
-    let w5_b = w5_temp[4];
-    let w5 = "---" + w5_a + w5_b;
-
-    return [w1,w2,w3,w4,w5];
-
-    //return ["LE---","-----","-----","-----","---OR"];
+    }
 
 }
 
@@ -372,7 +416,6 @@ function setSolution(words) {
 
     console.log(w1+w2+w3+w4+w5);
 
-    //return ["LEMON","ONSET","ETHIC","ICIER","ERROR"];
     return w1+w2+w3+w4+w5;
     //return "LEMONONSETETHICICIERERROR";
 
@@ -380,31 +423,122 @@ function setSolution(words) {
 
 function setGivenBoardAnswer() {
 
-    boardAnswer[0] = board[0][0];
-    boardAnswer[1] = board[0][1];
-    boardAnswer[23] = board[4][3];
-    boardAnswer[24] = board[4][4];
+    if (difficulty == "HARD") {
+
+        boardAnswer[0] = board[0][0];
+        boardAnswer[1] = board[0][1];
+        boardAnswer[23] = board[4][3];
+        boardAnswer[24] = board[4][4];
+
+    }
+
+    if (difficulty == "MEDIUM") {
+
+        boardAnswer[0] = board[0][0];
+        boardAnswer[1] = board[0][1];
+
+        boardAnswer[8] = board[1][3];
+        boardAnswer[10] = board[2][0];
+
+        boardAnswer[14] = board[2][4];
+        boardAnswer[16] = board[3][1];
+
+        boardAnswer[23] = board[4][3];
+        boardAnswer[24] = board[4][4];
+
+    }
+
+    if (difficulty == "EASY") {
+
+        boardAnswer[0] = board[0][0];
+        boardAnswer[1] = board[0][1];
+
+        boardAnswer[8] = board[1][3];
+        boardAnswer[9] = board[1][4];
+        boardAnswer[10] = board[2][0];
+        boardAnswer[11] = board[2][1];
+
+        boardAnswer[13] = board[2][3];
+        boardAnswer[14] = board[2][4];
+        boardAnswer[15] = board[3][0];
+        boardAnswer[16] = board[3][1];
+
+        boardAnswer[23] = board[4][3];
+        boardAnswer[24] = board[4][4];
+
+    }
 }
 
 function setLetterList(words) {
 
-    let w1_temp = words['words_1'].toUpperCase();
-    let w1 = w1_temp[2] + w1_temp[3] + w1_temp[4];
+    if (difficulty == "HARD") {
 
-    let w2_temp = words['words_2'].toUpperCase();
-    let w2 = w2_temp[2] + w2_temp[3] + w2_temp[4];
+        let w1_temp = words['words_1'].toUpperCase();
+        let w1 = w1_temp[2] + w1_temp[3] + w1_temp[4];
 
-    let w3_temp = words['words_3'].toUpperCase();
-    let w3 = w3_temp[2] + w3_temp[3] + w3_temp[4];
+        let w2_temp = words['words_2'].toUpperCase();
+        let w2 = w2_temp[2] + w2_temp[3] + w2_temp[4];
 
-    let w4_temp = words['words_4'].toUpperCase();
-    let w4 = w4_temp[2] + w4_temp[3] + w4_temp[4];
+        let w3_temp = words['words_3'].toUpperCase();
+        let w3 = w3_temp[2] + w3_temp[3] + w3_temp[4];
 
-    let w5 = words['words_5'].toUpperCase()[2];
+        let w4_temp = words['words_4'].toUpperCase();
+        let w4 = w4_temp[2] + w4_temp[3] + w4_temp[4];
 
-    let str = w1+w2+w3+w4+w5;
-    let str_shuffle = shuffle(str);
-    return str_shuffle;
+        let w5 = words['words_5'].toUpperCase()[2];
+
+        let str = w1+w2+w3+w4+w5;
+        let str_shuffle = shuffle(str);
+    
+        return str_shuffle;
+
+    }
+
+    if (difficulty == "MEDIUM") {
+
+        let w1_temp = words['words_1'].toUpperCase();
+        let w1 = w1_temp[2] + w1_temp[3] + w1_temp[4];
+
+        let w2_temp = words['words_2'].toUpperCase();
+        let w2 = w2_temp[2] + w2_temp[4];
+
+        let w3_temp = words['words_3'].toUpperCase();
+        let w3 = w3_temp[2] + w3_temp[3];
+
+        let w4_temp = words['words_4'].toUpperCase();
+        let w4 = w4_temp[2] + w4_temp[3] + w4_temp[4];
+
+        let w5 = words['words_5'].toUpperCase()[2];
+
+        let str = w1+w2+w3+w4+w5;
+        let str_shuffle = shuffle(str);
+    
+        return str_shuffle;
+
+    }
+
+    if (difficulty == "EASY") {
+
+        let w1_temp = words['words_1'].toUpperCase();
+        let w1 = w1_temp[2] + w1_temp[3] + w1_temp[4];
+
+        let w2_temp = words['words_2'].toUpperCase();
+        let w2 = w2_temp[2];
+
+        let w3_temp = words['words_3'].toUpperCase();
+        let w3 = w3_temp[2];
+
+        let w4_temp = words['words_4'].toUpperCase();
+        let w4 = w4_temp[2] + w4_temp[3] + w4_temp[4];
+
+        let w5 = words['words_5'].toUpperCase()[2];
+
+        let str = w1+w2+w3+w4+w5;
+        let str_shuffle = shuffle(str);
+    
+        return str_shuffle;
+
+    }
 
 }
 
@@ -432,14 +566,15 @@ function shuffle(array) {
 
 }
 
-// BUTTONS
+
+// BUTTON FUNCTIONS
 
 function onButtonClick() {
 
     let buttonType = this.id;
 
     if (buttonType == "clear-button") { onClearButton(); }
-    if (buttonType == "hint-button") { onHintButton(); }
+    //if (buttonType == "hint-button") { onHintButton(); }
     if (buttonType == "new-button") { onNewButton(); }
     if (buttonType == "difficulty-button") { onDifficultyButton(); }
     if (buttonType == "mode-button") { onModeButton(); }
@@ -491,7 +626,7 @@ function onNewButton() {
     onClearButton(); // clears board
 
     words = getPuzzleWords(json);
-    board = setBoard(words);
+    board = setBoard(words, difficulty);
     checkSolution = setSolution(words);
     letterlist = setLetterList(words);
 
@@ -516,6 +651,7 @@ function onNewButton() {
             if (board[r][c] != "-") {
 
                 tile.innerText = board[r][c];
+                tile.classList.add("tile-start");
             } 
         }
     }
@@ -525,21 +661,29 @@ function onNewButton() {
 }
 
 // STILL WORKING HERE
-
 function onHintButton() {
 
     let hintLetter = null;
-
     let tiles = document.querySelectorAll('[class*="tile"]');
+    let tileHint = null;
+
+    let tileID = null;
+    let letterID = null;
 
     for (let i = 0; i < tiles.length; i++) {
 
-        if (!tiles[i].classList.contains("tile-start")) {
+        if (!tiles[i].classList.contains("tile-start") & !tiles[i].classList.contains("tile-used")) {
 
             let firstOpen = tiles[i].id;
             let r = "words_" + (parseInt(firstOpen[0])+1);
             let c = parseInt(firstOpen[2]);
             hintLetter = words[r][c].toUpperCase();
+            tileHint = document.getElementById(firstOpen);
+            tileHint.classList.add("tile-used");
+            tileID = firstOpen;
+
+            //tileHint.classList.add("tile-start");
+            //tileHint.textContent = hintLetter;
 
             break;
         }
@@ -553,6 +697,7 @@ function onHintButton() {
 
             if (hintLetter == lettersHTML[i].textContent) {
 
+                letterID = lettersHTML[i].id;
                 console.log(hintLetter);
                 console.log(lettersHTML[i]);
                 break;
@@ -562,7 +707,8 @@ function onHintButton() {
 
     }
 
-    
+    addBoard(tileID, letterID);
+    console.log(boardAnswer);
 
     //console.log(letterlist);
 
@@ -574,12 +720,37 @@ function onDifficultyButton() {
     let buttonText = button[0].innerText;
 
     if(buttonText == "HARD") {
-        button[0].innerText = "EASY";
-    } else if (buttonText == "EASY") {
         button[0].innerText = "MEDIUM";
+        difficulty = "MEDIUM";
+    } else if (buttonText == "MEDIUM") {
+        button[0].innerText = "EASY";
+        difficulty = "EASY";
     } else {
-        button[0].innerText = "HARD"
+        button[0].innerText = "HARD";
+        difficulty = "HARD";
     }
+
+    let startTiles = document.querySelectorAll('[class*="tile-start"]');
+
+    startTiles.forEach( function (item) {
+        
+        item.classList.remove("tile-start");
+        item.innerText = null;
+
+    });
+
+    let usedTiles = document.querySelectorAll('[class*="tile-used"]');
+
+    usedTiles.forEach( function (item) {
+        
+        item.classList.remove("tile-used");
+        item.innerText = null;
+
+    });
+
+    letterlist = setLetterList(words);
+    createLetterTiles();
+    onNewButton();
 
 }
 

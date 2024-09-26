@@ -40,6 +40,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    cursor:pointer;
 }
 
 #letter-panel {
@@ -66,6 +68,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    cursor:pointer;
 }
 
 .letter-selected {
@@ -83,6 +87,12 @@ body {
 .letter-used {
     border: 5px solid #bdbdbd;
     background-color: transparent;
+}
+
+.letter-unused:hover {
+    border: 5px solid #79aa8c !important;
+    background-color: #79aa8c !important;
+    transform: translateY(-4px) !important;
 }
 
 .tile-used {
@@ -146,50 +156,3 @@ body {
   box-shadow: none;
   transform: translateY(0);
 }
-
-
-
-
-
-
-/*
-.tile-ends-1 {
-    border: 5px solid #eaeaea;
-    color:#000000;
-}
-
-.tile-ends-2 {
-    border: 5px solid #eaeaea;
-    color:#ffffff;
-}
-
-.tile-ends-3 {
-    border: 5px solid #eaeaea;
-    color:#ffffff;
-}
-
-.tile-ends-4 {
-    border: 5px solid #eaeaea;
-    color:#000000;
-}
-
-.tile-ends-5 {
-    border: 5px solid #eaeaea;
-    color:#000000;
-}
-
-.tile-ends-6 {
-    border: 5px solid #eaeaea;
-    color:#000000;
-}
-
-.tile-ends-7 {
-    border: 5px solid #eaeaea;
-    color:#000000;
-}
-
-.tile-ends-8 {
-    border: 5px solid #eaeaea;
-    color:#000000;
-}
-*/
