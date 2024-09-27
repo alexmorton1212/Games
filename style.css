@@ -92,10 +92,12 @@ body {
     background-color: transparent;
 }
 
-.letter-unused:hover {
-    border: 5px solid #ffffff;
-    background-color: #ffffff;
-    transform: translateY(-4px);
+@media (hover: hover) {
+    .letter-unused:hover {
+        border: 5px solid #ffffff;
+        background-color: #ffffff;
+        transform: translateY(-4px);
+    }
 }
 
 .tile-used {
