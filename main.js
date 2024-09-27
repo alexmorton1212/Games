@@ -384,25 +384,25 @@ function setBoard(words, diff) {
     
         let w1_a = w1_temp[0];
         let w1_b = w1_temp[1];
-        let w1 = w1_a + w1_b + "---";
+        let w1_c = w1_temp[4];
+        let w1 = w1_a + w1_b + "--" + w1_c;
 
-        let w2_a = w2_temp[3];
-        let w2_b = w2_temp[4];
-        let w2 = "---" + w2_a + w2_b;
+        let w2_a = w2_temp[1];
+        let w2_b = w2_temp[3];
+        let w2 = "-" + w2_a + "-" + w2_b + "-";
 
         let w3_a = w3_temp[0];
-        let w3_b = w3_temp[1];
-        let w3_c = w3_temp[3];
-        let w3_d = w3_temp[4];
-        let w3 = w3_a + w3_b + "-" + w3_c + w3_d;
+        let w3_b = w3_temp[4];
+        let w3 = w3_a + "---" + w3_b;
 
-        let w4_a = w4_temp[0];
-        let w4_b = w4_temp[1];
-        let w4 = w4_a + w4_b + "---";
+        let w4_a = w4_temp[1];
+        let w4_b = w4_temp[3];
+        let w4 = "-" + w4_a + "-" + w4_b + "-";
     
-        let w5_a = w5_temp[3];
-        let w5_b = w5_temp[4];
-        let w5 = "---" + w5_a + w5_b;
+        let w5_a = w5_temp[0];
+        let w5_b = w5_temp[3];
+        let w5_c = w5_temp[4];
+        let w5 = w5_a + "--" + w5_b + w5_c;
     
         return [w1,w2,w3,w4,w5];
         //return ["LE---","---AN","AN-EL","EL---","---OR"];
@@ -457,17 +457,18 @@ function setGivenBoardAnswer() {
 
         boardAnswer[0] = board[0][0];
         boardAnswer[1] = board[0][1];
+        boardAnswer[4] = board[0][4];
 
+        boardAnswer[6] = board[1][1];
         boardAnswer[8] = board[1][3];
-        boardAnswer[9] = board[1][4];
+
         boardAnswer[10] = board[2][0];
-        boardAnswer[11] = board[2][1];
-
-        boardAnswer[13] = board[2][3];
         boardAnswer[14] = board[2][4];
-        boardAnswer[15] = board[3][0];
-        boardAnswer[16] = board[3][1];
 
+        boardAnswer[16] = board[3][1];
+        boardAnswer[18] = board[3][3];
+
+        boardAnswer[20] = board[4][0];
         boardAnswer[23] = board[4][3];
         boardAnswer[24] = board[4][4];
 
@@ -525,16 +526,16 @@ function setLetterList(words) {
     if (difficulty == "EASY") {
 
         let w1_temp = words['words_1'].toUpperCase();
-        let w1 = w1_temp[2] + w1_temp[3] + w1_temp[4];
+        let w1 = w1_temp[2] + w1_temp[3];
 
         let w2_temp = words['words_2'].toUpperCase();
-        let w2 = w2_temp[2];
+        let w2 = w2_temp[2] + w2_temp[4];
 
         let w3_temp = words['words_3'].toUpperCase();
-        let w3 = w3_temp[2];
+        let w3 = w3_temp[2] + w3_temp[3];
 
         let w4_temp = words['words_4'].toUpperCase();
-        let w4 = w4_temp[2] + w4_temp[3] + w4_temp[4];
+        let w4 = w4_temp[2] + w4_temp[4];
 
         let w5 = words['words_5'].toUpperCase()[2];
 
