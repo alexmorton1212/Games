@@ -581,7 +581,7 @@ function onButtonClick() {
     let buttonType = this.id;
 
     if (buttonType == "clear-button") { onClearButton(); }
-    //if (buttonType == "hint-button") { onHintButton(); }
+    if (buttonType == "hint-button") { onHintButton(); }
     if (buttonType == "new-button") { onNewButton(); }
     if (buttonType == "difficulty-button") { onDifficultyButton(); }
     if (buttonType == "mode-button") { onModeButton(); }
@@ -594,12 +594,7 @@ function onClearButton() {
 
     if (gameDone == 0) {
 
-        console.log("CLEAR BUTTON");
-
         let tiles = document.querySelectorAll('[class*="tile-used"]');
-
-        console.log("TILES");
-        console.log(tiles)
 
         tiles.forEach( function (item) {
             
@@ -609,12 +604,11 @@ function onClearButton() {
     
             if (letter.classList.contains("letter-used")) {
                 letter.classList.remove("letter-used");
+                letter.classList.remove("letter-hint");
                 letter.classList.add("letter-unused");
                 letter.innerText = letterID.slice(-1);
             }
-    
-            console.log("CLEAR BOARD ARRAY")
-            console.log(boardArray);
+
             boardArray[index] = null;
             boardAnswer[index] = null;
     
@@ -623,27 +617,33 @@ function onClearButton() {
     
         });
 
-        let hintTiles = document.querySelectorAll('[class*="tile-hint"]');
 
-        hintTiles.forEach( function (item) {
+        if (newButtonState == 1) {
 
-            let index = getBoardIndex(item.id);
-            let letterID = boardArray[index];
-            let letter = document.getElementById(letterID);
+            let hintTiles = document.querySelectorAll('[class*="tile-hint"]');
+
+            hintTiles.forEach( function (item) {
     
-            if (letter.classList.contains("letter-used")) {
-                letter.classList.remove("letter-used");
-                letter.innerText = letterID.slice(-1);
-                letter.classList.add("letter-unused");
-            }
-    
-            boardArray[index] = null;
-            boardAnswer[index] = null;
-    
-            item.classList.remove("tile-hint");
-            item.innerText = null;
-    
-        });
+                let index = getBoardIndex(item.id);
+                let letterID = boardArray[index];
+                let letter = document.getElementById(letterID);
+        
+                if (letter.classList.contains("letter-used")) {
+                    letter.classList.remove("letter-used");
+                    letter.classList.remove("letter-hint");
+                    letter.innerText = letterID.slice(-1);
+                    letter.classList.add("letter-unused");
+                }
+        
+                boardArray[index] = null;
+                boardAnswer[index] = null;
+        
+                item.classList.remove("tile-hint");
+                item.innerText = null;
+        
+            });
+
+        } 
     
         let doneTiles = document.querySelectorAll('[class*="tile-game-done"]');
     
@@ -665,8 +665,6 @@ function onClearButton() {
 }
 
 function onNewButton() {
-
-    console.log("NEW BUTTON");
 
     gameDone = 0;
     newButtonState = 1;
@@ -710,6 +708,8 @@ function onNewButton() {
 
     setGivenBoardAnswer();
 
+    newButtonState = 0;
+
 }
 
 // STILL WORKING HERE
@@ -725,6 +725,7 @@ function onHintButton() {
         let letterID = null;
         let lettersHTML = document.querySelectorAll('[class*="letter"]');
         let hintLetter = null;
+        let letterHTMLid
 
         // find tile location for hint
     
@@ -736,14 +737,25 @@ function onHintButton() {
                 let r = "words_" + (parseInt(nextOpen[0])+1);
                 let c = parseInt(nextOpen[2]);
                 tileHint = document.getElementById(nextOpen);
+                console.log("TILE HINT");
+                console.log(tileHint);
                 tileID = nextOpen;
+                console.log("TILE ID");
+                console.log(tileID);
 
                 hintLetter = words[r][c].toUpperCase(); // gets hint letter;
 
                 // gets hint letter id;
 
+                console.log("LETTERS HTML");
+                console.log(lettersHTML);
+
                 for (let i = 0; i < lettersHTML.length; i++) {
-                    if (hintLetter == lettersHTML[i].id.slice(-1)) {
+                    letterHTMLid = document.getElementById(lettersHTML[i].id);
+                    console.log("LETTER HTML ID");
+                    console.log(letterHTMLid);
+                    if (hintLetter == lettersHTML[i].id.slice(-1) & !letterHTMLid.classList.contains("letter-hint")) {
+                    //if (hintLetter == lettersHTML[i].id.slice(-1)) {
                         letterID = lettersHTML[i].id;
                         break;
                     }
@@ -765,8 +777,11 @@ function onHintButton() {
         }
 
         // remove existing tile from board (if it exists)
+        // only remove if it is not already a hint tile **********
 
+        console.log("LETTER ID");
         console.log(letterID);
+        console.log("BOARD ARRAY");
         console.log(boardArray);
 
         if (boardArray.includes(letterID) & letterID != null) {
@@ -778,6 +793,9 @@ function onHintButton() {
             let r = Math.floor(removeTileIndex/5);
             let c = Math.floor(removeTileIndex%5);
             let removeTileID = r + "-" + c;
+
+            console.log("REMOVE TILE ID");
+            console.log(removeTileID);
 
             let removeTile = document.getElementById(removeTileID);
             removeTile.classList.remove("tile-used");
@@ -815,6 +833,7 @@ function onHintButton() {
         let letter = document.getElementById(letterID);
         letter.classList.remove("letter-unused");
         letter.classList.add("letter-used");
+        letter.classList.add("letter-hint");
         letter.innerText = null;
 
         // check if game is done
@@ -869,11 +888,21 @@ function onDifficultyButton() {
         item.innerText = null;
 
     });
-    
 
+    let hintTiles = document.querySelectorAll('[class*="tile-hint"]');
+
+    hintTiles.forEach( function (item) {
+
+        let index = getBoardIndex(item.id);
+        boardArray[index] = null;
+        boardAnswer[index] = null;
+        item.classList.remove("tile-hint");
+        item.innerText = null;
+
+    });
+    
     letterlist = setLetterList(words);
     createLetterTiles();
-    console.log("DIFFICULTY BUTTON");
     onNewButton();
 
 }
