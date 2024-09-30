@@ -13,7 +13,6 @@ body {
     text-align: center;
     background-color: #1e453e;
     /* background-image: linear-gradient(314deg, #1e453e 0%, #182c25 74%); */
-
 }
 
 #board {
@@ -81,6 +80,13 @@ body {
 }
 
 .tile-start {
+    border: 5px solid #79aa8c;
+    background-color: #79aa8c;
+    color:#000000;
+    pointer-events: none;
+}
+
+.tile-hint {
     border: 5px solid #79aa8c;
     background-color: #79aa8c;
     color:#000000;

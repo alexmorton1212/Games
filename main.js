@@ -15,6 +15,8 @@ let pairedTileList = ["0-3", "1-0", "0-4", "1-1", "1-3", "2-0", "1-4",
     "2-1", "2-3", "3-0", "2-4", "3-1", "3-3", "4-0", "3-4", "4-1"];
 var pairedTile = null;
 var difficulty = "HARD";
+var gameDone = 0;
+var newButtonState = 0;
 
 
 // BACK-END PUZZLE
@@ -174,9 +176,8 @@ function selectLetter() {
 }
 
 // Check Solution Here
-function selectTile() {
 
-    console.log(boardAnswer);
+function selectTile() {
 
     // only do stuff if we didn't click on one of the provided answer tiles
 
@@ -204,9 +205,8 @@ function selectTile() {
 
                 if (boardAnswer.join('') == checkSolution) {
 
-                    console.log(boardAnswer);
-
                     tileArray.forEach((t) => t.classList.add("tile-game-done"));
+                    gameDone = 1;
 
                 }
 
@@ -229,9 +229,8 @@ function selectTile() {
         }
 
         tileSelected = null;
-        //console.log(boardArray);
-        //console.log(boardAnswer);
-        //console.log(boardAnswer.join(''));
+        console.log(boardArray);
+        console.log(boardAnswer);
 
     }
 
@@ -428,6 +427,8 @@ function setSolution(words) {
 
 function setGivenBoardAnswer() {
 
+    boardAnswer = Array(25).fill(null);
+
     if (difficulty == "HARD") {
 
         boardAnswer[0] = board[0][0];
@@ -589,45 +590,86 @@ function onButtonClick() {
 
 function onClearButton() {
 
-    let tiles = document.querySelectorAll('[class*="tile-used"]');
+    // if game is not done (aka solution has not been reached)
 
-    tiles.forEach( function (item) {
-        
-        let index = getBoardIndex(item.id);
-        let letterID = boardArray[index];
-        let letter = document.getElementById(letterID);
+    if (gameDone == 0) {
 
-        if (letter.classList.contains("letter-used")) {
-            letter.classList.remove("letter-used");
-            letter.innerText = letterID.slice(-1);
+        console.log("CLEAR BUTTON");
+
+        let tiles = document.querySelectorAll('[class*="tile-used"]');
+
+        console.log("TILES");
+        console.log(tiles)
+
+        tiles.forEach( function (item) {
+            
+            let index = getBoardIndex(item.id);
+            let letterID = boardArray[index];
+            let letter = document.getElementById(letterID);
+    
+            if (letter.classList.contains("letter-used")) {
+                letter.classList.remove("letter-used");
+                letter.classList.add("letter-unused");
+                letter.innerText = letterID.slice(-1);
+            }
+    
+            console.log("CLEAR BOARD ARRAY")
+            console.log(boardArray);
+            boardArray[index] = null;
+            boardAnswer[index] = null;
+    
+            item.classList.remove("tile-used");
+            item.innerText = null;
+    
+        });
+
+        let hintTiles = document.querySelectorAll('[class*="tile-hint"]');
+
+        hintTiles.forEach( function (item) {
+
+            let index = getBoardIndex(item.id);
+            let letterID = boardArray[index];
+            let letter = document.getElementById(letterID);
+    
+            if (letter.classList.contains("letter-used")) {
+                letter.classList.remove("letter-used");
+                letter.innerText = letterID.slice(-1);
+                letter.classList.add("letter-unused");
+            }
+    
+            boardArray[index] = null;
+            boardAnswer[index] = null;
+    
+            item.classList.remove("tile-hint");
+            item.innerText = null;
+    
+        });
+    
+        let doneTiles = document.querySelectorAll('[class*="tile-game-done"]');
+    
+        doneTiles.forEach( function (item) {
+    
+            item.classList.remove("tile-game-done");
+    
+        });
+    
+        let letterRemaining = document.querySelectorAll('[class*="letter-selected"]');
+    
+        if (letterRemaining.length != 0) {
+    
+            letterRemaining[0].classList.remove("letter-selected");
         }
 
-        boardArray[index] = null;
-        boardAnswer[index] = null;
-
-        item.classList.remove("tile-used");
-        item.innerText = null;
-
-    });
-
-    let doneTiles = document.querySelectorAll('[class*="tile-game-done"]');
-
-    doneTiles.forEach( function (item) {
-
-        item.classList.remove("tile-game-done");
-
-    });
-
-    let letterRemaining = document.querySelectorAll('[class*="letter-selected"]');
-
-    if (letterRemaining.length != 0) {
-
-        letterRemaining[0].classList.remove("letter-selected");
     }
 
 }
 
 function onNewButton() {
+
+    console.log("NEW BUTTON");
+
+    gameDone = 0;
+    newButtonState = 1;
 
     onClearButton(); // clears board
 
@@ -671,60 +713,127 @@ function onNewButton() {
 }
 
 // STILL WORKING HERE
+// Check Solution Here
+
 function onHintButton() {
 
-    let hintLetter = null;
-    let tiles = document.querySelectorAll('[class*="tile"]');
-    let tileHint = null;
+    if (gameDone == 0) {
 
-    let tileID = null;
-    let letterID = null;
+        let tiles = document.querySelectorAll('[class*="tile"]');
+        let tileHint = null;
+        let tileID = null;
+        let letterID = null;
+        let lettersHTML = document.querySelectorAll('[class*="letter"]');
+        let hintLetter = null;
 
-    for (let i = 0; i < tiles.length; i++) {
+        // find tile location for hint
+    
+        for (let i = 0; i < tiles.length; i++) {
+    
+            if (!tiles[i].classList.contains("tile-start") & !tiles[i].classList.contains("tile-hint")) {
+    
+                let nextOpen = tiles[i].id;
+                let r = "words_" + (parseInt(nextOpen[0])+1);
+                let c = parseInt(nextOpen[2]);
+                tileHint = document.getElementById(nextOpen);
+                tileID = nextOpen;
 
-        if (!tiles[i].classList.contains("tile-start") & !tiles[i].classList.contains("tile-used")) {
+                hintLetter = words[r][c].toUpperCase(); // gets hint letter;
 
-            let firstOpen = tiles[i].id;
-            let r = "words_" + (parseInt(firstOpen[0])+1);
-            let c = parseInt(firstOpen[2]);
-            hintLetter = words[r][c].toUpperCase();
-            tileHint = document.getElementById(firstOpen);
-            tileHint.classList.add("tile-used");
-            tileID = firstOpen;
+                // gets hint letter id;
 
-            //tileHint.classList.add("tile-start");
-            //tileHint.textContent = hintLetter;
+                for (let i = 0; i < lettersHTML.length; i++) {
+                    if (hintLetter == lettersHTML[i].id.slice(-1)) {
+                        letterID = lettersHTML[i].id;
+                        break;
+                    }
+                }
 
-            break;
-        }
-    }
+                // remove tile if one already exists in the hint spot
 
-    let lettersHTML = document.querySelectorAll('[class*="letter"]');
+                if (tiles[i].classList.contains("tile-used")) {
 
-    for (let i = 0; i < lettersHTML.length; i++) {
+                    tiles[i].classList.remove("tile-used");
+                    tiles[i].innerText = null;
+                    removeBoard(tileID);
 
-        if (!lettersHTML[i].classList.contains("letter-used")) {
+                }
 
-            if (hintLetter == lettersHTML[i].textContent) {
-
-                letterID = lettersHTML[i].id;
-                console.log(hintLetter);
-                console.log(lettersHTML[i]);
                 break;
 
             }
         }
 
+        // remove existing tile from board (if it exists)
+
+        console.log(letterID);
+        console.log(boardArray);
+
+        if (boardArray.includes(letterID) & letterID != null) {
+
+            // get location of tile to remove (if pair returns first index of occurance)
+
+            let removeTileIndex = boardArray.indexOf(letterID)
+
+            let r = Math.floor(removeTileIndex/5);
+            let c = Math.floor(removeTileIndex%5);
+            let removeTileID = r + "-" + c;
+
+            let removeTile = document.getElementById(removeTileID);
+            removeTile.classList.remove("tile-used");
+            removeTile.innerText = null;
+
+            // removes paired tile (if it exists)
+
+            removeBoard(removeTileID);
+
+        }
+
+        // add correct tile to board
+
+        console.log(tileHint);
+
+        tileHint.innerText = hintLetter;
+        tileHint.classList.add("tile-hint");
+
+        let hintIndex = getBoardIndex(tileID);
+        boardArray[hintIndex] = letterID;
+        boardAnswer[hintIndex] = letterID.slice(-1);
+
+        if (pairedTileList.includes(tileID)) {
+
+            let pairedTile = getPair(tileID);
+            let pairedIndex = getBoardIndex(pairedTile.id);
+            boardArray[pairedIndex] = letterID;
+            boardAnswer[pairedIndex] = letterID.slice(-1);
+    
+            pairedTile.innerText = letterID.slice(-1);
+            pairedTile.classList.add("tile-hint");
+        
+        }
+
+        let letter = document.getElementById(letterID);
+        letter.classList.remove("letter-unused");
+        letter.classList.add("letter-used");
+        letter.innerText = null;
+
+        // check if game is done
+    
+        if (boardAnswer.join('') == checkSolution) {
+    
+            tileArray.forEach((t) => t.classList.add("tile-game-done"));
+            gameDone = 1;
+    
+        }
+        
+
     }
-
-    addBoard(tileID, letterID);
-    console.log(boardAnswer);
-
-    //console.log(letterlist);
 
 }
 
 function onDifficultyButton() {
+
+    gameDone = 0;
 
     let button = document.querySelectorAll('[id*="difficulty-button"]');
     let buttonText = button[0].innerText;
@@ -748,18 +857,23 @@ function onDifficultyButton() {
         item.innerText = null;
 
     });
-
+    
     let usedTiles = document.querySelectorAll('[class*="tile-used"]');
 
     usedTiles.forEach( function (item) {
-        
+
+        let index = getBoardIndex(item.id);
+        boardArray[index] = null;
+        boardAnswer[index] = null;
         item.classList.remove("tile-used");
         item.innerText = null;
 
     });
+    
 
     letterlist = setLetterList(words);
     createLetterTiles();
+    console.log("DIFFICULTY BUTTON");
     onNewButton();
 
 }
@@ -768,11 +882,7 @@ function onModeButton() {
 
     let button = document.querySelectorAll('[id*="mode-button"]');
     let buttonText = button[0].innerText;
-
     let buttonFormats = document.querySelectorAll('[class*="button-28"]');
-    let letterFormats = document.querySelectorAll('[class*="letter"]');
-    let letterUsedFormats = document.querySelectorAll('[class*="letter-used"]');
-    let tileFormats = document.querySelectorAll('[class*="tile"]');
 
     if(buttonText == "NORMAL") {
 
@@ -785,27 +895,6 @@ function onModeButton() {
             e.style.color="black";
         });
 
-        /*
-        letterFormats.forEach((e) => {
-            e.style.borderColor="#eaeaea";
-            e.style.backgroundColor="#eaeaea";
-        });
-        */
-
-        /*
-        letterUsedFormats.forEach((e) => {
-            e.style.backgroundColor="#eaeaea";
-            e.style.borderColor="#eaeaea";
-        });
-        */
-
-        /*
-        tileFormats.forEach((e) => {
-            e.style.borderColor="black";
-            e.style.border="solid"
-        });
-        */
-
     } else if (buttonText == "LIGHT") {
 
         button[0].innerText = "DARK";
@@ -816,19 +905,6 @@ function onModeButton() {
             e.style.borderColor="#ffffff";
             e.style.color="white";
         });
-
-        /*
-        letterFormats.forEach((e) => {
-            e.style.borderColor="white";
-        });
-        */
-
-        /*
-        tileFormats.forEach((e) => {
-            e.style.borderColor="black";
-            e.style.border="solid"
-        });
-        */
 
     } else {
 
@@ -841,14 +917,6 @@ function onModeButton() {
             e.style.color="white";
         });
 
-        /*
-        letterFormats.forEach((e) => {
-            e.style.borderColor="white";
-        });
-        */
-
     }
 
-
-    
 }
