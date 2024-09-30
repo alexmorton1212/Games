@@ -913,6 +913,8 @@ function onModeButton() {
     let buttonText = button[0].innerText;
     let buttonFormats = document.querySelectorAll('[class*="button-28"]');
 
+    console.log(buttonText);
+
     if(buttonText == "NORMAL") {
 
         button[0].innerText = "LIGHT";
@@ -927,12 +929,12 @@ function onModeButton() {
     } else if (buttonText == "LIGHT") {
 
         button[0].innerText = "DARK";
-        document.getElementById("header").style.color="white";
+        document.getElementById("header").style.color="#bdbdbd";
         document.body.style.backgroundColor="#262626";
 
         buttonFormats.forEach((e) => {
-            e.style.borderColor="#ffffff";
-            e.style.color="white";
+            e.style.borderColor="#bdbdbd";
+            e.style.color="#bdbdbd";
         });
 
     } else {
