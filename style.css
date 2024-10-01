@@ -178,3 +178,114 @@ body {
   box-shadow: none;
   transform: translateY(0);
 }
+
+
+/* MODEL (POP-UP) */
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: 300ms ease-in-out;
+    border-radius: 20px;
+    z-index: 10;
+    background-color: #79aa8c;
+    width: 400px;
+    max-width: 80%;
+    height: 480px;
+    max-height: 80%;
+}
+
+.modal.active {
+    transform: translate(-50%, -50%) scale(1);
+}
+  
+.modal-header {
+    padding: 10px 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20;
+    color: #1e453e;
+}
+  
+.modal-header .title {
+    font-size: 50px;
+    font-weight: bold;
+}
+
+.modal-header .close-button {
+    cursor: pointer;
+    border: none;
+    outline: none;
+    background: none;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+  
+.modal-body {
+    padding: 10px 15px;
+}
+
+.modal-answer {
+
+    color: white;
+    font-size: 30px;
+    font-weight: bold;
+}
+  
+#overlay {
+    position: fixed;
+    opacity: 0;
+    transition: 200ms ease-in-out;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, .5);
+    pointer-events: none;
+}
+  
+#overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.close-button {
+
+    appearance: none;
+    background-color: transparent;
+    border: 5px solid #ffffff;
+    border-radius: 15px;
+    box-sizing: border-box;
+    color: #ffffff;
+    cursor: pointer;
+    display: inline-block;
+    font-family: Roobert,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    font-size:28px;
+    font-weight: 800;
+    line-height: normal;
+    margin: 10;
+    min-height: 60px;
+    min-width: 0;
+    outline: none;
+    padding: 0px;
+    text-align: center;
+    text-decoration: none;
+    transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: 220px;
+    will-change: transform;
+
+}
+
+@media (hover: hover) {
+    .close-button:hover {
+        color: #1e453e !important; 
+        background-color: transparent !important;
+        border: 5px solid #1e453e !important;
+    }
+}

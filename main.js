@@ -43,6 +43,15 @@ const modeButton = document.querySelector('#mode-button');
 modeButton.addEventListener('click', onButtonClick);
 
 
+// MODAL (POP-UP)
+
+let modal = document.getElementById('modal');
+let closeModalButton = document.querySelectorAll('[data-close-button]');
+let newModalButton = document.querySelectorAll('[data-new-button]');
+let overlay = document.getElementById('overlay');
+addModelListeners();
+
+
 // START GAME
 
 window.onload = function () {
@@ -207,6 +216,7 @@ function selectTile() {
 
                     tileArray.forEach((t) => t.classList.add("tile-game-done"));
                     gameDone = 1;
+                    openModal(modal);
 
                 }
 
@@ -229,8 +239,6 @@ function selectTile() {
         }
 
         tileSelected = null;
-        console.log(boardArray);
-        console.log(boardAnswer);
 
     }
 
@@ -417,8 +425,6 @@ function setSolution(words) {
     let w3 = words['words_3'].toUpperCase();
     let w4 = words['words_4'].toUpperCase();
     let w5 = words['words_5'].toUpperCase();
-
-    console.log(w1+w2+w3+w4+w5);
 
     return w1+w2+w3+w4+w5;
     //return "LEMONONSETETHICICIERERROR";
@@ -712,7 +718,6 @@ function onNewButton() {
 
 }
 
-// STILL WORKING HERE
 // Check Solution Here
 
 function onHintButton() {
@@ -737,23 +742,14 @@ function onHintButton() {
                 let r = "words_" + (parseInt(nextOpen[0])+1);
                 let c = parseInt(nextOpen[2]);
                 tileHint = document.getElementById(nextOpen);
-                console.log("TILE HINT");
-                console.log(tileHint);
                 tileID = nextOpen;
-                console.log("TILE ID");
-                console.log(tileID);
 
                 hintLetter = words[r][c].toUpperCase(); // gets hint letter;
 
                 // gets hint letter id;
 
-                console.log("LETTERS HTML");
-                console.log(lettersHTML);
-
                 for (let i = 0; i < lettersHTML.length; i++) {
                     letterHTMLid = document.getElementById(lettersHTML[i].id);
-                    console.log("LETTER HTML ID");
-                    console.log(letterHTMLid);
                     if (hintLetter == lettersHTML[i].id.slice(-1) & !letterHTMLid.classList.contains("letter-hint")) {
                     //if (hintLetter == lettersHTML[i].id.slice(-1)) {
                         letterID = lettersHTML[i].id;
@@ -779,11 +775,6 @@ function onHintButton() {
         // remove existing tile from board (if it exists)
         // only remove if it is not already a hint tile **********
 
-        console.log("LETTER ID");
-        console.log(letterID);
-        console.log("BOARD ARRAY");
-        console.log(boardArray);
-
         if (boardArray.includes(letterID) & letterID != null) {
 
             // get location of tile to remove (if pair returns first index of occurance)
@@ -793,9 +784,6 @@ function onHintButton() {
             let r = Math.floor(removeTileIndex/5);
             let c = Math.floor(removeTileIndex%5);
             let removeTileID = r + "-" + c;
-
-            console.log("REMOVE TILE ID");
-            console.log(removeTileID);
 
             let removeTile = document.getElementById(removeTileID);
             removeTile.classList.remove("tile-used");
@@ -808,8 +796,6 @@ function onHintButton() {
         }
 
         // add correct tile to board
-
-        console.log(tileHint);
 
         tileHint.innerText = hintLetter;
         tileHint.classList.add("tile-hint");
@@ -842,6 +828,7 @@ function onHintButton() {
     
             tileArray.forEach((t) => t.classList.add("tile-game-done"));
             gameDone = 1;
+            openModal(modal);
     
         }
         
@@ -913,8 +900,6 @@ function onModeButton() {
     let buttonText = button[0].innerText;
     let buttonFormats = document.querySelectorAll('[class*="button-28"]');
 
-    console.log(buttonText);
-
     if(buttonText == "NORMAL") {
 
         button[0].innerText = "LIGHT";
@@ -949,5 +934,64 @@ function onModeButton() {
         });
 
     }
+
+}
+
+
+// MODAL FUNCTIONS
+
+function openModal(modal) {
+
+    modal.classList.add('active');
+    overlay.classList.add('active');
+
+    let modalAnswer = document.getElementById('modal-answer');
+    let modalWords = [];
+
+    modalWords.push(words['words_1'].toUpperCase());
+    modalWords.push(words['words_2'].toUpperCase());
+    modalWords.push(words['words_3'].toUpperCase());
+    modalWords.push(words['words_4'].toUpperCase());
+    modalWords.push(words['words_5'].toUpperCase());
+
+    modalWords.forEach(function (w) {
+        let wordDiv = document.createElement("div");
+        wordDiv.innerText = w;
+        modalAnswer.appendChild(wordDiv);
+    });
+
+}
+  
+function closeModal(modal) {
+
+    modal.classList.remove('active');
+    overlay.classList.remove('active');
+
+    let modalAnswer = document.getElementById('modal-answer');
+    modalAnswer.textContent = null;
+
+}
+
+function addModelListeners() {
+
+    overlay.addEventListener('click', () => {
+        let modals = document.querySelectorAll('.modal.active');
+        modals.forEach(modal => { closeModal(modal); })
+    })
+
+    closeModalButton.forEach(button => {
+        button.addEventListener('click', () => {
+        let modalClose = button.closest('.modal'); 
+        closeModal(modalClose);
+        })
+    })
+
+    newModalButton.forEach(button => {
+        button.addEventListener('click', () => {
+        let modalClose = button.closest('.modal'); 
+        closeModal(modalClose);
+        onNewButton();
+        })
+    })
 
 }
