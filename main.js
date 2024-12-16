@@ -1,4 +1,9 @@
 
+// TO DO LIST
+// fix how JSON data is being read
+// change how answers are being checked
+
+
 // DATA
 
 import data from "./data.json" with {type: "json"};
@@ -17,6 +22,7 @@ var pairedTile = null;
 var difficulty = "HARD";
 var gameDone = 0;
 var newButtonState = 0;
+var guideButtonState = 1;
 
 
 // BACK-END PUZZLE
@@ -41,6 +47,8 @@ const difficultyButton = document.querySelector('#difficulty-button');
 difficultyButton.addEventListener('click', onButtonClick);
 const modeButton = document.querySelector('#mode-button');
 modeButton.addEventListener('click', onButtonClick);
+const guideButton = document.querySelector('#guide-button');
+guideButton.addEventListener('click', onButtonClick);
 
 
 // MODAL (POP-UP)
@@ -110,6 +118,11 @@ function createBoard() {
 
     for (let r = 0; r < 5; r++) {
 
+        let row = document.createElement("div");
+        row.classList.add("row");
+        row.classList.add("row-" + (r+1).toString());
+        row.id = "row-" + (r+1).toString();
+
         for (let c = 0; c < 5; c++) {
 
             let tile = document.createElement("div");
@@ -122,9 +135,16 @@ function createBoard() {
 
             }
 
+            if (pairedTileList.includes(tile.id)) {
+                tile.classList.add("tile-paired");
+                tile.classList.add("color-guide-on");
+            }
+
             tile.addEventListener("click", selectTile);
+            tile.classList.add("tile-" + tile.id);
             tile.classList.add("tile");
-            document.getElementById("board").append(tile);
+            document.getElementById("board").append(row);
+            document.getElementById("row-" + (r+1).toString()).append(tile);
 
             tileArray.push(tile);
 
@@ -591,6 +611,7 @@ function onButtonClick() {
     if (buttonType == "new-button") { onNewButton(); }
     if (buttonType == "difficulty-button") { onDifficultyButton(); }
     if (buttonType == "mode-button") { onModeButton(); }
+    if (buttonType == "guide-button") { onGuideButton(); }
 
 }
 
@@ -818,6 +839,7 @@ function onHintButton() {
 
         let letter = document.getElementById(letterID);
         letter.classList.remove("letter-unused");
+        letter.classList.remove("letter-selected");
         letter.classList.add("letter-used");
         letter.classList.add("letter-hint");
         letter.innerText = null;
@@ -905,6 +927,7 @@ function onModeButton() {
         button[0].innerText = "LIGHT";
         document.getElementById("header").style.color="black";
         document.body.style.backgroundColor="#e0e0e0";
+        //document.body.style.background="linear-gradient(#e0e0e0, #adadad)";
 
         buttonFormats.forEach((e) => {
             e.style.borderColor="black";
@@ -916,6 +939,7 @@ function onModeButton() {
         button[0].innerText = "DARK";
         document.getElementById("header").style.color="#bdbdbd";
         document.body.style.backgroundColor="#262626";
+        //document.body.style.background="linear-gradient(#262626, #141626)";
 
         buttonFormats.forEach((e) => {
             e.style.borderColor="#bdbdbd";
@@ -927,7 +951,8 @@ function onModeButton() {
         button[0].innerText = "NORMAL";
         document.getElementById("header").style.color="white";
         document.body.style.backgroundColor="#1e453e";
-        
+        //document.body.style.background="linear-gradient(#1e453e, #1a2f2b)";        
+
         buttonFormats.forEach((e) => {
             e.style.borderColor="#ffffff";
             e.style.color="white";
@@ -937,6 +962,30 @@ function onModeButton() {
 
 }
 
+function onGuideButton() {
+
+    let pairedTileClass = document.querySelectorAll('[class*="tile-paired"]');
+
+    console.log("hello");
+
+    if (guideButtonState == 1) {
+
+        pairedTileClass.forEach((e) => {
+            e.classList.remove("color-guide-on");
+        });
+
+        guideButtonState = 0;
+
+    } else {
+
+        pairedTileClass.forEach((e) => {
+            e.classList.add("color-guide-on");
+        });
+
+        guideButtonState = 1;
+    }
+    
+}
 
 // MODAL FUNCTIONS
 
