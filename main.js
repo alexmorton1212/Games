@@ -1,8 +1,6 @@
 
 // TO DO LIST
-// fix how JSON data is being read
 // change how answers are being checked
-
 
 // DATA
 
@@ -47,8 +45,8 @@ const difficultyButton = document.querySelector('#difficulty-button');
 difficultyButton.addEventListener('click', onButtonClick);
 const modeButton = document.querySelector('#mode-button');
 modeButton.addEventListener('click', onButtonClick);
-const guideButton = document.querySelector('#guide-button');
-guideButton.addEventListener('click', onButtonClick);
+//const guideButton = document.querySelector('#guide-button');
+//guideButton.addEventListener('click', onButtonClick);
 
 
 // MODAL (POP-UP)
@@ -611,7 +609,7 @@ function onButtonClick() {
     if (buttonType == "new-button") { onNewButton(); }
     if (buttonType == "difficulty-button") { onDifficultyButton(); }
     if (buttonType == "mode-button") { onModeButton(); }
-    if (buttonType == "guide-button") { onGuideButton(); }
+    // if (buttonType == "guide-button") { onGuideButton(); }
 
 }
 
@@ -922,12 +920,37 @@ function onModeButton() {
     let buttonText = button[0].innerText;
     let buttonFormats = document.querySelectorAll('[class*="button-28"]');
 
+    
+    if(buttonText == "LIGHT") {
+
+        button[0].innerText = "DARK";
+        document.getElementById("header").style.color="#bdbdbd";
+        document.body.style.backgroundColor="#262626";
+
+        buttonFormats.forEach((e) => {
+            e.style.borderColor="#bdbdbd";
+            e.style.color="#bdbdbd";
+        });
+
+    } else {
+
+        button[0].innerText = "LIGHT";
+        document.getElementById("header").style.color="black";
+        document.body.style.backgroundColor="#e0e0e0";
+
+        buttonFormats.forEach((e) => {
+            e.style.borderColor="black";
+            e.style.color="black";
+        });
+    }
+
+
+    /*
     if(buttonText == "NORMAL") {
 
         button[0].innerText = "LIGHT";
         document.getElementById("header").style.color="black";
         document.body.style.backgroundColor="#e0e0e0";
-        //document.body.style.background="linear-gradient(#e0e0e0, #adadad)";
 
         buttonFormats.forEach((e) => {
             e.style.borderColor="black";
@@ -939,7 +962,6 @@ function onModeButton() {
         button[0].innerText = "DARK";
         document.getElementById("header").style.color="#bdbdbd";
         document.body.style.backgroundColor="#262626";
-        //document.body.style.background="linear-gradient(#262626, #141626)";
 
         buttonFormats.forEach((e) => {
             e.style.borderColor="#bdbdbd";
@@ -950,8 +972,7 @@ function onModeButton() {
 
         button[0].innerText = "NORMAL";
         document.getElementById("header").style.color="white";
-        document.body.style.backgroundColor="#1e453e";
-        //document.body.style.background="linear-gradient(#1e453e, #1a2f2b)";        
+        document.body.style.backgroundColor="#1e453e";    
 
         buttonFormats.forEach((e) => {
             e.style.borderColor="#ffffff";
@@ -959,6 +980,7 @@ function onModeButton() {
         });
 
     }
+    */
 
 }
 
