@@ -1,60 +1,144 @@
 
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <!-- <meta name="viewport" content="width=1000"> -->
-        <!-- <meta name="viewport" content="width=1000 initial-scale=1.0 user-scalable=no"> -->
-        <meta name="viewport" content="width=device-width, initial-scale=0.7">
-        <title>LETTERASE</title>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css"/>
+    <link rel="shortcut icon" href="Letterase-FavIcon3.png">
+</head>
 
-        <!-- <link rel="stylesheet" href="style.css"> -->
-        <link rel="stylesheet" href="style.css">
-        <link rel="icon" href="data:;base64,iVBORw0KGgo=">
-        <!-- <script src="main.js"></script> -->
-        <script type="module" src="main.js"></script>
-    </head>
+<body>
 
-    <body>
-
-        <div class="container" id="container">
-
-            <h1 id="header">L E T T E R A S E</h1>
-            
-            <div id="buttons">
-                <button class="button-28" id="clear-button" type="button">CLEAR</button>
-                <button class="button-28" id="hint-button" type="button">HINT</button>
-                <button class="button-28" id="new-button" type="button">NEW</button>
-                <button class="button-28" id="difficulty-button" type="button">HARD</button>
-                <button class="button-28" id="mode-button" type="button">NORMAL</button>
-                <button class="button-28" id="guide-button" type="button">GUIDE</button>
-            </div>
-
-            <div id="board"></div>
-            <div id="letter-panel"></div>
-
+    <div class="title">
+        <p>LETTERASE</p>
+        <p></p>
+        <div class="title-button">
+            <button class="howto-button" id="howto-open-id">?</button>
         </div>
+    </div>
 
-        <div class="modal" id="modal">
+    <div id="howto-modal" class="jw-modal">
+        <div class="howto-modal">
+            <div class="howto-modal-body">
+                <div class="howto-modal-content">
 
-            <div class="modal-header">
-                <div class="title">Completed!</div>
+                    <h2><b>HOW TO PLAY</b></h2>
+                    <h4>The last 2 letters of one word become the first 2 letters of the next</h4>
+                    <div class="howto-game-container">
+                        <div class="howto-tile-row" id="tile-row-modal">
+                            <div class="howto-tile">A</div>
+                            <div class="howto-tile">P</div>
+                            <div class="howto-tile">P</div>
+                            <div class="howto-tile howto-match" id="howto-match-1">L</div>
+                            <div class="howto-tile howto-match" id="howto-match-2">E</div>
+                        </div>
+                        <div class="howto-tile-row" id="tile-row-modal">
+                            <div class="howto-tile howto-match" id="howto-match-1">L</div>
+                            <div class="howto-tile howto-match" id="howto-match-2">E</div>
+                            <div class="howto-tile">M</div>
+                            <div class="howto-tile">O</div>
+                            <div class="howto-tile">N</div>
+                        </div>
+                    </div>
+                    <h4><b>Clear</br></b><em>Remove all letters from board</em></h4>
+                    <h4><b>Hint</br></b><em>Reveal two letter placements (number of uses limited by game mode)</em></h4>
+                    <h4><b>Check</br></b><em>Reveal which letters on board are currently correct</em></h4>
+                    <h4><b>New</br></b><em>Start new game with new letters</em></h4>
+                    <button class="modal-close" id="howto-close-id">CLOSE</button>
+                </div>
             </div>
-
-            <div class="modal-body">
-
-                <div class="modal-answer" id="modal-answer"></div>
-                <br>
-                <div><button data-new-button class="close-button" id="close-new-button">PLAY AGAIN</button></div>
-                <div><button data-close-button class="close-button" id="close-button">EXIT</button></div>
-
-            </div>
-
         </div>
+    </div>
 
-        <div id="overlay"></div>
+    <div class="toggles" id="slay">
+        <nav class="difficulty" id="difficulty-id">
+            <input type="radio" id="x1" value="Easy" name="x"/>
+            <label for="x1" id="easy">Easy</label>
+            <input type="radio" id="x2" value="Med" name="x"/>
+            <label for="x2" id="med">Med</label>
+            <input type="radio" id="x3" value="Hard" name="x" checked/>
+            <label for="x3" id="hard">Hard</label>
+        </nav>
+        <nav class="display" id="display-id">
+            <input type="radio" id="y1" value="Light" name="y" checked="checked"/>
+            <label for="y1" id="light">Light</label>
+            <input type="radio" id="y2" value="Dark" name="y"/>
+            <label for="y2" id="dark">Dark</label>
+        </nav>
+    </div>
+    
+    <div class="buttons">
+        <button class="click-buttons clear-button" type="button" id="clear">Clear</button>
+        <button class="click-buttons hint-button" type="button" id="hint">Hint</button>
+        <button class="click-buttons check-button" type="button" id="check">Check</button>
+        <button class="click-buttons new-button" type="button" id="new"> New </button>
+    </div>
 
-    </body>
+    <div class="game">
+        <div class="game-container">
+            <div class="tile-row" id="tile-row-1">
+                <div class="tile tile-static" id="tile-1"></div>
+                <div class="tile tile-static" id="tile-2"></div>
+                <div class="tile tile-unused" id="tile-3"></div>
+                <div class="tile pair tile-unused" id="tile-4"></div>
+                <div class="tile pair tile-unused" id="tile-5"></div>
+            </div>
+            <div class="tile-row" id="tile-row-2">
+                <div class="tile pair tile-unused" id="tile-6"></div>
+                <div class="tile pair tile-unused" id="tile-7"></div>
+                <div class="tile tile-unused" id="tile-8"></div>
+                <div class="tile pair tile-unused" id="tile-9"></div>
+                <div class="tile pair tile-unused" id="tile-10"></div>
+            </div>
+            <div class="tile-row" id="tile-row-3">
+                <div class="tile pair tile-unused" id="tile-11"></div>
+                <div class="tile pair tile-unused" id="tile-12"></div>
+                <div class="tile tile-unused" id="tile-13"></div>
+                <div class="tile pair tile-unused" id="tile-14"></div>
+                <div class="tile pair tile-unused" id="tile-15"></div>
+            </div>
+            <div class="tile-row" id="tile-row-4">
+                <div class="tile pair tile-unused" id="tile-16"></div>
+                <div class="tile pair tile-unused" id="tile-17"></div>
+                <div class="tile tile-unused" id="tile-18"></div>
+                <div class="tile pair tile-unused" id="tile-19"></div>
+                <div class="tile pair tile-unused" id="tile-20"></div>
+            </div>
+            <div class="tile-row" id="tile-row-5">
+                <div class="tile pair tile-unused" id="tile-21"></div>
+                <div class="tile pair tile-unused" id="tile-22"></div>
+                <div class="tile tile-unused" id="tile-23"></div>
+                <div class="tile tile-static" id="tile-24"></div>
+                <div class="tile tile-static" id="tile-25"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="keyboard">
+        <div class="keyboard-container">
+            <div class="letter-row-1" id="letter-row-1">
+                <div class="letter letter-unused" id="letter-1"></div>
+                <div class="letter letter-unused" id="letter-2"></div>
+                <div class="letter letter-unused" id="letter-3"></div>
+                <div class="letter letter-unused" id="letter-4"></div>
+                <div class="letter letter-unused" id="letter-5"></div>
+                <div class="letter letter-unused" id="letter-6"></div>
+            </div>
+            <div class="letter-row-2" id="letter-row-2">
+                <div class="letter letter-unused" id="letter-7"></div>
+                <div class="letter letter-unused" id="letter-8"></div>
+                <div class="letter letter-unused" id="letter-9"></div>
+                <div class="letter letter-unused" id="letter-10"></div>
+                <div class="letter letter-unused" id="letter-11"></div>
+                <div class="letter letter-unused" id="letter-12"></div>
+                <div class="letter letter-unused" id="letter-13"></div>
+            </div>
+        </div>
+    </div>
 
+</body>
+
+<script type="module" src="main.js"></script>
 
 </html>

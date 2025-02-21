@@ -1,1046 +1,724 @@
 
-// TO DO LIST
-// fix how JSON data is being read
-// change how answers are being checked
+/****************************************/
+/* GLOBAL VARIABLES */
+/****************************************/
 
+// can ignore this error if it appears, "with" is a function from another package
+import solutionDataJSON from "./data.json" with {type: "json"};
+const solutionData = JSON.parse(solutionDataJSON);
 
-// DATA
+let initialGameboard = [];
+for (let i of document.querySelectorAll('.tile')) { initialGameboard.push(Array.from(i.classList)); }
 
-import data from "./data.json" with {type: "json"};
+let modeValue = document.querySelector('input[name="x"]:checked').value;
+let letterList = [];
+let puzzle = {};
+let letterSelectedBool = 0;
+let letterSelectedDiv = '';
+let hintCount = 1;
 
+// can ignore this error if it appears, "with" is a function from another package
+import wordListArray from "./word_list.json" with {type: "json"};
 
-// FRONT-END PUZZLE
 
-var letterSelected = null;
-var tileSelected = null;
-var boardAnswer = Array(25).fill(null); 
-var boardArray = Array(25).fill(null);
-var tileArray = Array();
-let pairedTileList = ["0-3", "1-0", "0-4", "1-1", "1-3", "2-0", "1-4",
-    "2-1", "2-3", "3-0", "2-4", "3-1", "3-3", "4-0", "3-4", "4-1"];
-var pairedTile = null;
-var difficulty = "HARD";
-var gameDone = 0;
-var newButtonState = 0;
-var guideButtonState = 1;
+/****************************************/
+/* DATA: Solutions, Letter List */
+/****************************************/
 
-
-// BACK-END PUZZLE
-
-var json = getJSON(data);
-var words = getPuzzleWords(json);
-var board = setBoard(words, difficulty);
-var checkSolution = setSolution(words);
-var letterlist = setLetterList(words);
-setGivenBoardAnswer();
-
-
-// BUTTONS
-
-const hintButton = document.querySelector('#hint-button');
-hintButton.addEventListener('click', onButtonClick);
-const clearButton = document.querySelector('#clear-button');
-clearButton.addEventListener('click', onButtonClick);
-const newButton = document.querySelector('#new-button');
-newButton.addEventListener('click', onButtonClick);
-const difficultyButton = document.querySelector('#difficulty-button');
-difficultyButton.addEventListener('click', onButtonClick);
-const modeButton = document.querySelector('#mode-button');
-modeButton.addEventListener('click', onButtonClick);
-const guideButton = document.querySelector('#guide-button');
-guideButton.addEventListener('click', onButtonClick);
-
-
-// MODAL (POP-UP)
-
-let modal = document.getElementById('modal');
-let closeModalButton = document.querySelectorAll('[data-close-button]');
-let newModalButton = document.querySelectorAll('[data-new-button]');
-let overlay = document.getElementById('overlay');
-addModelListeners();
-
-
-// START GAME
-
-window.onload = function () {
-    setGame();
-}
-
-
-// FRONT-END FUNCTIONS
-
-function setGame() {
-
-    createLetterTiles();
-    createBoard();
-
-}
-
-function createLetterTiles() {
-
-    let letterTiles = document.querySelectorAll('[class*="letter"]');
-
-
-    // if not first game (difficulty change)
-
-    if (letterTiles.length != 0) {
-        letterTiles.forEach( function (item) { item.remove(); });
-    }
-
-    for (let i = 1; i <= letterlist.length; i++) {
-
-        //<div id="1A" class="letter">1</div>
-        
-        let letter = document.createElement("div");
-        letter.id = i.toString() + letterlist[i - 1];
-        letter.innerText = letterlist[i - 1];
-
-        letter.addEventListener("click", selectLetter);
-
-        document.addEventListener('click', (e) => {
-            if (e.target.nodeName === 'BODY') {
-                letter.classList.remove('letter-selected');  
-                letterSelected = null;
-            }
-        });
-
-        letter.classList.add("letter");
-        letter.classList.add("letter-unused");
-        document.getElementById("letter-panel").appendChild(letter);
-    }
-
-
-}
-
-function createBoard() {
-
-    // Board
-
-    for (let r = 0; r < 5; r++) {
-
-        let row = document.createElement("div");
-        row.classList.add("row");
-        row.classList.add("row-" + (r+1).toString());
-        row.id = "row-" + (r+1).toString();
-
-        for (let c = 0; c < 5; c++) {
-
-            let tile = document.createElement("div");
-            tile.id = r.toString() + "-" + c.toString();
-
-            if (board[r][c] != "-") {
-
-                tile.innerText = board[r][c];
-                tile.classList.add("tile-start");
-
-            }
-
-            if (pairedTileList.includes(tile.id)) {
-                tile.classList.add("tile-paired");
-                tile.classList.add("color-guide-on");
-            }
-
-            tile.addEventListener("click", selectTile);
-            tile.classList.add("tile-" + tile.id);
-            tile.classList.add("tile");
-            document.getElementById("board").append(row);
-            document.getElementById("row-" + (r+1).toString()).append(tile);
-
-            tileArray.push(tile);
-
-        }
-    }
-
-}
-
-function selectLetter() {
-
-    // if no letter is selected
-
-    if (letterSelected == null) {
-
-        letterSelected = this;
-
-        // if letter has already been used (greyed-out)
-
-        if (letterSelected.classList.contains("letter-used")) {
-
-            letterSelected = null;
-
-        } else {
-
-            // if letter has not already been used
-
-            this.classList.add("letter-selected");
-
-        }
-
-    } else {
-
-        // if some letter is already selected
-
-        // if selected letter is already selected
-        // then deselect the letter
-
-        if (this.classList.contains("letter-selected")) {
-
-            this.classList.remove("letter-selected");
-            letterSelected = null;
-
-        } else {
-
-            // if selected letter is not already selected
-            // then deselect the first letter and select the new one
-
-            if (this.classList.contains("letter-unused")) {
-
-                letterSelected.classList.remove("letter-selected");
-                letterSelected = this;
-                this.classList.add("letter-selected");
-
-            }
-
-        }
-    }
-}
-
-// Check Solution Here
-
-function selectTile() {
-
-    // only do stuff if we didn't click on one of the provided answer tiles
-
-    if (!this.classList.contains("tile-start")) {
-
-        // if we click on an open tile
-
-        if (!this.classList.contains("tile-used")) {
-
-            // only do stuff if we have a letter selected
-
-            if (letterSelected != null) {
-
-                tileSelected = this;
-                tileSelected.innerText = letterSelected.id.slice(-1);
-                tileSelected.classList.add("tile-used");
-
-                addBoard(tileSelected.id, letterSelected.id);
-
-                letterSelected.classList.remove("letter-selected");
-                letterSelected.innerText = null;
-                letterSelected.classList.add("letter-used");
-                letterSelected.classList.remove("letter-unused");
-                letterSelected = null;
-
-                if (boardAnswer.join('') == checkSolution) {
-
-                    tileArray.forEach((t) => t.classList.add("tile-game-done"));
-                    gameDone = 1;
-                    openModal(modal);
-
-                }
-
-            }
-
-        } else {
-
-            // if we click on a tile with a letter already in it
-            // if we do not have a letter selected
-
-            if (letterSelected == null) {
-
-                tileSelected = this;
-                removeBoard(tileSelected.id);
-                tileSelected.classList.remove("tile-used");
-                tileSelected.innerText = null;
-
-            }
-
-        }
-
-        tileSelected = null;
-
-    }
-
-}
-
-function addBoard(tileID, letterID) {
-
-    let index = getBoardIndex(tileID);
-    boardArray[index] = letterID;
-    boardAnswer[index] = letterID.slice(-1);
-
-    if (pairedTileList.includes(tileID)) {
-
-        let pairedTile = getPair(tileID);
-        let pairedIndex = getBoardIndex(pairedTile.id);
-        boardArray[pairedIndex] = letterID;
-        boardAnswer[pairedIndex] = letterID.slice(-1);
-
-        pairedTile.innerText = letterID.slice(-1);
-        pairedTile.classList.add("tile-used");
-    
-    }
-    
-}
-
-function removeBoard(tileID) {
-
-    let index = getBoardIndex(tileID);
-
-    let letterID = boardArray[index];
-    let letter = document.getElementById(letterID);
-    letter.classList.remove("letter-used");
-    letter.classList.add("letter-unused");
-    letter.innerText = letterID.slice(-1);
-
-    if (pairedTileList.includes(tileID)) {
-
-        let pairedTile = getPair(tileID);
-        let pairedIndex = getBoardIndex(pairedTile.id);
-        pairedTile.classList.remove("tile-used");
-        pairedTile.innerText = null;
-        boardArray[pairedIndex] = null;
-        boardAnswer[pairedIndex] = null;
-
-    }
-
-    boardArray[index] = null;
-    boardAnswer[index] = null;
-
-}
-
-function getPair(tileID) {
-
-    pairedTile = null;
-
-    if (tileID == "0-3") { pairedTile = document.getElementById("1-0"); }
-    if (tileID == "1-0") { pairedTile = document.getElementById("0-3"); }
-    if (tileID == "0-4") { pairedTile = document.getElementById("1-1"); }
-    if (tileID == "1-1") { pairedTile = document.getElementById("0-4"); }
-    if (tileID == "1-3") { pairedTile = document.getElementById("2-0"); }
-    if (tileID == "2-0") { pairedTile = document.getElementById("1-3"); }
-    if (tileID == "1-4") { pairedTile = document.getElementById("2-1"); }
-    if (tileID == "2-1") { pairedTile = document.getElementById("1-4"); }
-    if (tileID == "2-3") { pairedTile = document.getElementById("3-0"); }
-    if (tileID == "3-0") { pairedTile = document.getElementById("2-3"); }
-    if (tileID == "2-4") { pairedTile = document.getElementById("3-1"); }
-    if (tileID == "3-1") { pairedTile = document.getElementById("2-4"); }
-    if (tileID == "3-3") { pairedTile = document.getElementById("4-0"); }
-    if (tileID == "4-0") { pairedTile = document.getElementById("3-3"); }
-    if (tileID == "3-4") { pairedTile = document.getElementById("4-1"); }
-    if (tileID == "4-1") { pairedTile = document.getElementById("3-4"); }
-
-    return pairedTile;
-}
-
-function getBoardIndex(tileID) {
-
-    let r = parseInt(tileID[0]);
-    let c = parseInt(tileID[2]);
-    let place = (5 * r) + c;
-
-    return place;
-
-}
-
-
-// BACK-END FUNCTIONS
-
-function setBoard(words, diff) {
-
-    if (diff == "HARD") {
-
-        let w1_temp = words['words_1'].toUpperCase();
-        let w2 = "-----";
-        let w3 = "-----";
-        let w4 = "-----";
-        let w5_temp = words['words_5'].toUpperCase();
-    
-        let w1_a = w1_temp[0];
-        let w1_b = w1_temp[1];
-        let w1 = w1_a + w1_b + "---";
-    
-        let w5_a = w5_temp[3];
-        let w5_b = w5_temp[4];
-        let w5 = "---" + w5_a + w5_b;
-    
-        return [w1,w2,w3,w4,w5];
-        //return ["LE---","-----","-----","-----","---OR"];
-
-    }
-
-    if (diff == "MEDIUM") {
-
-        let w1_temp = words['words_1'].toUpperCase();
-        let w2_temp = words['words_2'].toUpperCase();
-        let w3_temp = words['words_3'].toUpperCase();
-        let w4_temp = words['words_4'].toUpperCase();
-        let w5_temp = words['words_5'].toUpperCase();
-    
-        let w1_a = w1_temp[0];
-        let w1_b = w1_temp[1];
-        let w1 = w1_a + w1_b + "---";
-
-        let w2_a = w2_temp[3];
-        let w2 = "---" + w2_a + "-";
-
-        let w3_a = w3_temp[0];
-        let w3_d = w3_temp[4];
-        let w3 = w3_a + "---" + w3_d;
-
-        let w4_b = w4_temp[1];
-        let w4 = "-" + w4_b + "---";
-    
-        let w5_a = w5_temp[3];
-        let w5_b = w5_temp[4];
-        let w5 = "---" + w5_a + w5_b;
-
-        return [w1,w2,w3,w4,w5];
-        //return ["LE---","---A-","A---L","-L---","---OR"];
-
-    }
-
-    if (diff == "EASY") {
-
-        let w1_temp = words['words_1'].toUpperCase();
-        let w2_temp = words['words_2'].toUpperCase();
-        let w3_temp = words['words_3'].toUpperCase();
-        let w4_temp = words['words_4'].toUpperCase();
-        let w5_temp = words['words_5'].toUpperCase();
-    
-        let w1_a = w1_temp[0];
-        let w1_b = w1_temp[1];
-        let w1_c = w1_temp[4];
-        let w1 = w1_a + w1_b + "--" + w1_c;
-
-        let w2_a = w2_temp[1];
-        let w2_b = w2_temp[3];
-        let w2 = "-" + w2_a + "-" + w2_b + "-";
-
-        let w3_a = w3_temp[0];
-        let w3_b = w3_temp[4];
-        let w3 = w3_a + "---" + w3_b;
-
-        let w4_a = w4_temp[1];
-        let w4_b = w4_temp[3];
-        let w4 = "-" + w4_a + "-" + w4_b + "-";
-    
-        let w5_a = w5_temp[0];
-        let w5_b = w5_temp[3];
-        let w5_c = w5_temp[4];
-        let w5 = w5_a + "--" + w5_b + w5_c;
-    
-        return [w1,w2,w3,w4,w5];
-        //return ["LE---","---AN","AN-EL","EL---","---OR"];
-
-    }
-
-}
-
-function setSolution(words) {
-
-    let w1 = words['words_1'].toUpperCase();
-    let w2 = words['words_2'].toUpperCase();
-    let w3 = words['words_3'].toUpperCase();
-    let w4 = words['words_4'].toUpperCase();
-    let w5 = words['words_5'].toUpperCase();
-
-    return w1+w2+w3+w4+w5;
-    //return "LEMONONSETETHICICIERERROR";
-
-}
-
-function setGivenBoardAnswer() {
-
-    boardAnswer = Array(25).fill(null);
-
-    if (difficulty == "HARD") {
-
-        boardAnswer[0] = board[0][0];
-        boardAnswer[1] = board[0][1];
-        boardAnswer[23] = board[4][3];
-        boardAnswer[24] = board[4][4];
-
-    }
-
-    if (difficulty == "MEDIUM") {
-
-        boardAnswer[0] = board[0][0];
-        boardAnswer[1] = board[0][1];
-
-        boardAnswer[8] = board[1][3];
-        boardAnswer[10] = board[2][0];
-
-        boardAnswer[14] = board[2][4];
-        boardAnswer[16] = board[3][1];
-
-        boardAnswer[23] = board[4][3];
-        boardAnswer[24] = board[4][4];
-
-    }
-
-    if (difficulty == "EASY") {
-
-        boardAnswer[0] = board[0][0];
-        boardAnswer[1] = board[0][1];
-        boardAnswer[4] = board[0][4];
-
-        boardAnswer[6] = board[1][1];
-        boardAnswer[8] = board[1][3];
-
-        boardAnswer[10] = board[2][0];
-        boardAnswer[14] = board[2][4];
-
-        boardAnswer[16] = board[3][1];
-        boardAnswer[18] = board[3][3];
-
-        boardAnswer[20] = board[4][0];
-        boardAnswer[23] = board[4][3];
-        boardAnswer[24] = board[4][4];
-
-    }
-}
-
-function setLetterList(words) {
-
-    if (difficulty == "HARD") {
-
-        let w1_temp = words['words_1'].toUpperCase();
-        let w1 = w1_temp[2] + w1_temp[3] + w1_temp[4];
-
-        let w2_temp = words['words_2'].toUpperCase();
-        let w2 = w2_temp[2] + w2_temp[3] + w2_temp[4];
-
-        let w3_temp = words['words_3'].toUpperCase();
-        let w3 = w3_temp[2] + w3_temp[3] + w3_temp[4];
-
-        let w4_temp = words['words_4'].toUpperCase();
-        let w4 = w4_temp[2] + w4_temp[3] + w4_temp[4];
-
-        let w5 = words['words_5'].toUpperCase()[2];
-
-        let str = w1+w2+w3+w4+w5;
-        let str_shuffle = shuffle(str);
-    
-        return str_shuffle;
-
-    }
-
-    if (difficulty == "MEDIUM") {
-
-        let w1_temp = words['words_1'].toUpperCase();
-        let w1 = w1_temp[2] + w1_temp[3] + w1_temp[4];
-
-        let w2_temp = words['words_2'].toUpperCase();
-        let w2 = w2_temp[2] + w2_temp[4];
-
-        let w3_temp = words['words_3'].toUpperCase();
-        let w3 = w3_temp[2] + w3_temp[3];
-
-        let w4_temp = words['words_4'].toUpperCase();
-        let w4 = w4_temp[2] + w4_temp[3] + w4_temp[4];
-
-        let w5 = words['words_5'].toUpperCase()[2];
-
-        let str = w1+w2+w3+w4+w5;
-        let str_shuffle = shuffle(str);
-    
-        return str_shuffle;
-
-    }
-
-    if (difficulty == "EASY") {
-
-        let w1_temp = words['words_1'].toUpperCase();
-        let w1 = w1_temp[2] + w1_temp[3];
-
-        let w2_temp = words['words_2'].toUpperCase();
-        let w2 = w2_temp[2] + w2_temp[4];
-
-        let w3_temp = words['words_3'].toUpperCase();
-        let w3 = w3_temp[2] + w3_temp[3];
-
-        let w4_temp = words['words_4'].toUpperCase();
-        let w4 = w4_temp[2] + w4_temp[4];
-
-        let w5 = words['words_5'].toUpperCase()[2];
-
-        let str = w1+w2+w3+w4+w5;
-        let str_shuffle = shuffle(str);
-    
-        return str_shuffle;
-
-    }
-
-}
-
-function getJSON(object) {
-
-    return JSON.parse(object);
-
-}
-
-function getPuzzleWords(json) {
-
+function setRandomPuzzle(json) {
     var num_puzzles = Object.keys(json).length;
     var puzzle_id = Math.floor(Math.random() * num_puzzles);
-
-    return json[puzzle_id];
-
+    puzzle = json[puzzle_id];
 }
+
+function getLetterList() {
+
+    letterList = [];
+    for (let i = 0; i < 5; i++) {
+        let wordField = 'words_' + (i+1);
+        let word = puzzle[wordField];
+        for (let l in word) {
+            letterList.push(word[l].toUpperCase());
+        }
+    }
+}
+
+setRandomPuzzle(solutionData); // create initial puzzle
+getLetterList(); // create initial letter list
+
+
+/****************************************/
+/* KEYBOARD: Set Up */
+/****************************************/
 
 function shuffle(array) {
 
-    const chars = array.split("");
-    chars.sort(() => 0.5 - Math.random());
-    const scrambled = chars.join("");
-    return scrambled;
-
+    for (let i = array.length - 1; i >= 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
 }
 
+function getKeyboardLetters() {
 
-// BUTTON FUNCTIONS
-
-function onButtonClick() {
-
-    let buttonType = this.id;
-
-    if (buttonType == "clear-button") { onClearButton(); }
-    if (buttonType == "hint-button") { onHintButton(); }
-    if (buttonType == "new-button") { onNewButton(); }
-    if (buttonType == "difficulty-button") { onDifficultyButton(); }
-    if (buttonType == "mode-button") { onModeButton(); }
-    if (buttonType == "guide-button") { onGuideButton(); }
-
+    let keyboardList = letterList;
+    let indicesToKeep = [];
+    if (modeValue == 'Easy') { indicesToKeep = [2,3,7,9,12,13,17,19,22]; }
+    if (modeValue == 'Med') { indicesToKeep = [2,3,4,7,9,12,13,17,18,19,22]; }
+    if (modeValue == 'Hard') { indicesToKeep = [2,3,4,7,8,9,12,13,14,17,18,19,22]; }
+    return(shuffle(keyboardList.filter((_, index) => indicesToKeep.includes(index))));
 }
 
-function onClearButton() {
+function setKeyboard() {
 
-    // if game is not done (aka solution has not been reached)
+    let keyboardLetters = getKeyboardLetters();
 
-    if (gameDone == 0) {
-
-        let tiles = document.querySelectorAll('[class*="tile-used"]');
-
-        tiles.forEach( function (item) {
-            
-            let index = getBoardIndex(item.id);
-            let letterID = boardArray[index];
-            let letter = document.getElementById(letterID);
+    if (modeValue == 'Easy') { 
+        let easyIndices = [2,3,4,5,8,9,10,11,12];
+        for (let i = 0; i < easyIndices.length; i++) {
+            document.getElementById('letter-'+easyIndices[i]).innerHTML = keyboardLetters[i];
+        }
+    }
     
-            if (letter.classList.contains("letter-used")) {
-                letter.classList.remove("letter-used");
-                letter.classList.remove("letter-hint");
-                letter.classList.add("letter-unused");
-                letter.innerText = letterID.slice(-1);
+    if (modeValue == 'Med') {
+        let medIndices = [1,2,3,4,5,6,8,9,10,11,12];
+        for (let i = 0; i < medIndices.length; i++) {
+            document.getElementById('letter-'+medIndices[i]).innerHTML = keyboardLetters[i];
+        }
+    }
+
+    if (modeValue == 'Hard') { 
+        let hardIndices = [1,2,3,4,5,6,7,8,9,10,11,12,13];
+        for (let i = 0; i < hardIndices.length; i++) {
+            document.getElementById('letter-'+hardIndices[i]).innerHTML = keyboardLetters[i];
+        }
+    }
+
+}
+
+function makeKeyboardClickable() {
+
+    for (let kletter of document.querySelectorAll(".letter")) {
+        kletter.addEventListener("click", clickKeyboard);
+    }
+}
+
+function clickKeyboard() {
+
+    // if a letter is not already selected
+    if (letterSelectedBool == 0) {
+
+        // if selected letter is not already used
+        if (!this.classList.contains('letter-used')) {
+            this.classList.add('letter-selected');
+            this.classList.remove('letter-unused');
+            letterSelectedBool = 1;
+            letterSelectedDiv = this;
+        }
+
+    // if a letter is already selected
+    } else {
+
+        // if we click the same selected letter again --> unselect
+        if (this.classList.contains('letter-selected')) {
+            this.classList.remove('letter-selected');
+            this.classList.add('letter-unused');
+            letterSelectedBool = 0;
+            letterSelectedDiv = '';
+    
+        } else {
+
+            // if we click another unused letter --> unselect old, select new
+            if (this.classList.contains('letter-unused')) {
+                letterSelectedDiv.classList.remove('letter-selected');
+                letterSelectedDiv.classList.add('letter-unused');
+                this.classList.add('letter-selected');
+                this.classList.remove('letter-unused');
+                letterSelectedBool = 1;
+                letterSelectedDiv = this;
+
+            } else {
+
+                // if we try selecting a used letter --> unselect
+                if (this.classList.contains('letter-used')) {
+                    letterSelectedDiv.classList.remove('letter-selected');
+                    letterSelectedDiv.classList.add('letter-unused');
+                    letterSelectedBool = 0;
+                    letterSelectedDiv = '';
+                }
+            }
+        }
+    }
+}
+
+setKeyboard(); // populate initial keyboard letters
+makeKeyboardClickable(); // add event listeners to keyboard letters
+
+
+/****************************************/
+/* GAMEBOARD: Set Up */
+/****************************************/
+
+function getGameboardLetters() {
+
+    let gameboardList = letterList;
+    let indicesToKeep = [];
+    if (modeValue == 'Easy') { indicesToKeep = [0,1,4,6,8,10,14,16,18,20,23,24]; }
+    if (modeValue == 'Med') { indicesToKeep = [0,1,8,10,14,16,23,24]; }
+    if (modeValue == 'Hard') { indicesToKeep = [0,1,23,24]; }
+    return(gameboardList.filter((_, index) => indicesToKeep.includes(index)));
+}
+
+function setGameboard() {
+
+    let gameboardLetters = getGameboardLetters();
+    let tileIndices = [1,2,5,7,9,11,15,17,19,21,24,25];
+    let indexCount = 0;
+
+    if (modeValue == 'Easy') { 
+        for (let i = 0; i < tileIndices.length; i++) {
+            document.getElementById('tile-'+tileIndices[i]).innerHTML = gameboardLetters[i];
+            document.getElementById('tile-'+tileIndices[i]).classList.add('tile-static');
+            document.getElementById('tile-'+tileIndices[i]).classList.remove('tile-unused');
+        }
+    }
+    
+    if (modeValue == 'Med') { 
+        let mediumTileBlanks = [5,7,19,21];
+        for (let i = 0; i < tileIndices.length; i++) {
+            if (mediumTileBlanks.includes(tileIndices[i])) {
+                document.getElementById('tile-'+tileIndices[i]).innerHTML = '';
+                document.getElementById('tile-'+tileIndices[i]).classList.remove('tile-static');
+                document.getElementById('tile-'+tileIndices[i]).classList.add('tile-unused');
+            } else {
+                document.getElementById('tile-'+tileIndices[i]).innerHTML = gameboardLetters[indexCount]; indexCount++;
+                document.getElementById('tile-'+tileIndices[i]).classList.add('tile-static');
+                document.getElementById('tile-'+tileIndices[i]).classList.remove('tile-unused');
+            }
+        }
+    }
+
+    if (modeValue == 'Hard') { 
+        let hardTileBlanks = [5,7,9,11,15,17,19,21];
+        for (let i = 0; i < tileIndices.length; i++) {
+            if (hardTileBlanks.includes(tileIndices[i])) {
+                document.getElementById('tile-'+tileIndices[i]).innerHTML = '';
+                document.getElementById('tile-'+tileIndices[i]).classList.remove('tile-static');
+                document.getElementById('tile-'+tileIndices[i]).classList.add('tile-unused');
+            } else {
+                document.getElementById('tile-'+tileIndices[i]).innerHTML = gameboardLetters[indexCount]; indexCount++;
+                document.getElementById('tile-'+tileIndices[i]).classList.add('tile-static');
+                document.getElementById('tile-'+tileIndices[i]).classList.remove('tile-unused');
+            }
+        }
+    }
+
+}
+
+setGameboard(); // populate initial gameboard letters
+
+
+/****************************************/
+/* KEYBOARD + GAMEBOARD: Interactions */
+/****************************************/
+
+const pairsDictionary = {
+    'tile-4': 'tile-6', 'tile-6': 'tile-4', 'tile-5': 'tile-7', 'tile-7': 'tile-5',
+    'tile-9': 'tile-11', 'tile-11': 'tile-9', 'tile-10': 'tile-12', 'tile-12': 'tile-10',
+    'tile-14': 'tile-16', 'tile-16': 'tile-14', 'tile-15': 'tile-17', 'tile-17': 'tile-15',
+    'tile-19': 'tile-21', 'tile-21': 'tile-19', 'tile-20': 'tile-22', 'tile-22': 'tile-20'
+};
+
+function addPairedLetter(etid) {
+
+    let targetPair = document.getElementById(pairsDictionary[etid]);
+    targetPair.innerHTML = letterSelectedDiv.innerHTML;
+    targetPair.classList.add(letterSelectedDiv.id);
+    targetPair.classList.remove("tile-unused");
+    targetPair.classList.add("tile-used");
+}
+
+function removePairedLetter(tlid, etid) {
+
+    let targetPair = document.getElementById(pairsDictionary[etid]);
+    targetPair.innerHTML = '';
+    targetPair.classList.remove(tlid);
+    targetPair.classList.remove('tile-used');
+    targetPair.classList.add('tile-unused');
+}
+
+function setupBoardInteractions() {
+
+    document.addEventListener('click', (e) => {
+
+        // if a letter on the keyboard is currently selected
+        if (letterSelectedBool == 1) {
+    
+            // if we click on something other than the keyboard
+            // keyboard cases get handled in the Keyboard Setup section
+            if (!e.target.classList.contains('letter')) {
+    
+                // if we clicked an unused gameboard tile --> add to gameboard, remove from keyboard
+                // if the tile we clicked is a pair (class = pair) --> TO DO ******************************************
+                if (e.target.classList.contains('tile-unused')) {
+
+                    e.target.innerHTML = letterSelectedDiv.innerHTML;
+                    e.target.classList.add(letterSelectedDiv.id);
+                    e.target.classList.remove("tile-unused");
+                    e.target.classList.add("tile-used");
+
+                    // if tile we clicked on has a matching pair
+                    if (e.target.classList.contains('pair')) { addPairedLetter(e.target.id); }
+
+                    letterSelectedDiv.classList.remove('letter-selected');
+                    letterSelectedDiv.classList.add('letter-used');
+                    letterSelectedDiv.innerHTML = '';
+                    letterSelectedBool = 0;
+                    letterSelectedDiv = '';
+
+                    // check if all letters have been used / if solutions are correct
+                    if (document.querySelectorAll('.letter-unused').length == 0) { checkGameWin(); }
+
+                // if we click on something other than an unused tile
+                } else {
+
+                    // if we click on a used, static, or hint tile --> do nothing on board, keep keyboard letter selected
+                    // otherwise --> unselect keyboard letter
+                    if(!e.target.classList.contains('tile-used') 
+                    & !e.target.classList.contains('tile-static') 
+                    & !e.target.classList.contains('tile-hint')) {
+                        letterSelectedDiv.classList.remove('letter-selected');
+                        letterSelectedDiv.classList.add('letter-unused');
+                        letterSelectedBool = 0;
+                        letterSelectedDiv = '';
+                    }
+                }    
+            }
+        
+        // if there is NO letter selected on keyboard
+        } else {
+
+            // if tile is used --> remove tile from gameboard, add back letter to keyboard
+            // also do nothing if game is successfully completed (tile-complete)
+            // otherwise do nothing
+            if (e.target.classList.contains('tile-used') & !e.target.classList.contains('tile-complete')) {
+
+                let tileLetterId = Array.from(e.target.classList).find(c => /letter/.test(c));
+                let keyboardLetter = document.getElementById(tileLetterId);
+                keyboardLetter.innerHTML = e.target.innerHTML;
+                keyboardLetter.classList.remove('letter-used');
+                keyboardLetter.classList.add('letter-unused');
+                e.target.innerHTML = '';
+                e.target.classList.remove(tileLetterId);
+                e.target.classList.remove('tile-used');
+                e.target.classList.add('tile-unused');
+
+                // if tile we clicked on has a matching pair
+                if (e.target.classList.contains('pair')) { removePairedLetter(tileLetterId, e.target.id); }
+
+            }
+        }
+    });
+}
+
+// TO DO: ADD POP UP MODAL FOR GAME COMPLETION
+
+function checkGameWin() {
+
+    let usedTiles = document.querySelectorAll('.tile');
+    let answerWordList = [];
+
+    for (let i = 0; i < 5; i++) {
+        let answerWord = '';
+        for (let j = 0; j < 5; j++) { answerWord += usedTiles[(5*i)+j].innerHTML; }
+        answerWordList.push(answerWord);
+    }
+
+    if (answerWordList.every(word => wordListArray.includes(word))) {
+        usedTiles.forEach(tile => { tile.classList.add('tile-complete'); });
+
+        // TO DO: ADD POP UP MODAL FOR GAME COMPLETION
+        for (let w in answerWordList) {
+            console.log(answerWordList[w]);
+        }
+    }
+
+}
+
+setupBoardInteractions();
+
+
+/****************************************/
+/* MODAL: How To (Instructions) */
+/****************************************/
+
+function openHowToModal() {
+    document.getElementById('howto-modal').classList.add('open');
+    document.body.classList.add('jw-modal-open');
+}
+
+function closeHowToModal() {
+    document.querySelector('.jw-modal.open').classList.remove('open');
+    document.body.classList.remove('jw-modal-open');
+}
+
+function setupHowToModal() {
+
+    document.addEventListener('click', event => {
+        if (event.target.id == 'howto-open-id') { openHowToModal(); }
+        if (event.target.id == 'howto-close-id') { closeHowToModal(); }
+        if (event.target.id == 'howto-modal') { closeHowToModal(); }
+        if (event.target.classList.contains("howto-modal")) { closeHowToModal(); }
+    });
+
+    document.addEventListener('mouseover', function(event) {
+        if (event.target.classList.contains('howto-match')) {
+            let hoveredIdList = document.querySelectorAll(`#${event.target.id}`);
+            for (let e of hoveredIdList) { e.classList.add('howto-highlight'); }
+        }
+    });
+
+    document.addEventListener('mouseout', function(event) {
+        if (event.target.classList.contains('howto-match')) {
+            let hoveredIdList = document.querySelectorAll(`#${event.target.id}`);
+            for (let e of hoveredIdList) { e.classList.remove('howto-highlight'); }
+        }
+    });
+
+}
+
+setupHowToModal();
+
+
+/****************************************/
+/* RADIO BUTTON: [Easy, Med, Hard] */
+/****************************************/
+
+const letter1 = document.createElement('div');
+letter1.classList.add('letter', 'letter-unused'); letter1.id = 'letter-1';
+const letter6 = document.createElement('div');
+letter6.classList.add('letter', 'letter-unused'); letter6.id = 'letter-6';
+const letter7 = document.createElement('div');
+letter7.classList.add('letter', 'letter-unused'); letter7.id = 'letter-7';
+const letter13 = document.createElement('div');
+letter13.classList.add('letter', 'letter-unused'); letter13.id = 'letter-13';
+
+function setupModeRadio() {
+
+    let modeValueList = document.querySelectorAll('input[name="x"]');
+    
+    for(let m of modeValueList) {
+        m.addEventListener("change", function(event) {
+            modeValue = event.target.value;
+            changeMode(modeValue);
+        });
+    }
+}
+
+function changeMode(mode) {
+
+    if (mode == 'Easy') {
+        if (document.getElementById('letter-1')) {
+            document.getElementById('letter-1').remove();
+            document.getElementById('letter-6').remove();
+        }
+        if (document.getElementById('letter-13')) {
+            document.getElementById('letter-7').remove();
+            document.getElementById('letter-13').remove();
+        }
+    }
+
+    if (mode == 'Med') {
+        if (document.getElementById('letter-1')) {
+            document.getElementById('letter-7').remove();
+            document.getElementById('letter-13').remove();
+        } else {
+            let row1 = document.getElementById("letter-row-1");
+            let firstLetter1 = row1.children[0];
+            let lastLetter1 = row1.children[4];
+            row1.insertBefore(letter1, firstLetter1);
+            row1.insertBefore(letter6, lastLetter1);
+        }
+    }
+
+    if (mode == 'Hard') {
+        if (!document.getElementById('letter-1')) {
+            let row1 = document.getElementById("letter-row-1");
+            let firstLetter1 = row1.children[0];
+            let lastLetter1 = row1.children[4];
+            row1.insertBefore(letter1, firstLetter1);
+            row1.insertBefore(letter6, lastLetter1);
+        }
+        if (!document.getElementById('letter-13')) {
+            let row2 = document.getElementById("letter-row-2");
+            let firstLetter2 = row2.children[0];
+            let lastLetter2 = row2.children[5];
+            row2.insertBefore(letter7, firstLetter2);
+            row2.insertBefore(letter13, lastLetter2);
+        }
+    }
+
+    setKeyboard(); // need to update keyboard
+    setGameboard(); // need to update gameboard
+    makeKeyboardClickable(); // make keyboard tiles clickable
+    onNewButtonClick();
+
+}
+
+setupModeRadio();
+
+
+/****************************************/
+/* RADIO BUTTON: [Light, Dark] */
+/****************************************/
+
+function setupDisplayRadio() {
+
+    let displayValue = document.querySelector('input[name="y"]:checked').value;
+    let displayValueList = document.querySelectorAll('input[name="y"]');
+
+    for(let d of displayValueList) {
+        d.addEventListener("change", function(event) {
+            displayValue = event.target.value;
+            changeDisplay(displayValue);
+        });
+    }
+}
+
+function changeDisplay(v) {
+
+    if (v == 'Light') { 
+        document.documentElement.style.setProperty('--background-color', 'rgb(224, 224, 224)');
+        document.documentElement.style.setProperty('--accent-color', 'rgb(82, 82, 82)'); 
+        document.documentElement.style.setProperty('--accent-highlight', 'rgb(104, 134, 104)'); 
+        document.documentElement.style.setProperty('--button-hover-color', 'rgb(179, 179, 179)');  
+    }
+    if (v == 'Dark') { 
+        document.documentElement.style.setProperty('--background-color', 'rgb(45, 45, 45)');
+        document.documentElement.style.setProperty('--accent-color', 'rgb(172, 172, 172)'); 
+        document.documentElement.style.setProperty('--accent-highlight', 'rgb(179, 179, 179)'); 
+        document.documentElement.style.setProperty('--button-hover-color', 'rgb(82, 82, 82)');  
+    }
+}
+
+setupDisplayRadio();
+
+
+/****************************************/
+/* BUTTON: Clear */
+/****************************************/
+
+const clearButton = document.querySelector('#clear');
+clearButton.addEventListener('click', onClearButtonClick);
+
+function onClearButtonClick() {
+
+    let clearElements = document.querySelectorAll('.tile-used');
+
+    for (let t of clearElements) {
+        if (!t.classList.contains('tile-complete')) {
+            let tileLetterId = Array.from(t.classList).find(c => /letter/.test(c));
+            let keyboardLetter = document.getElementById(tileLetterId);
+            if (keyboardLetter.classList.contains('letter-used')) {
+                keyboardLetter.innerHTML = t.innerHTML;
+                keyboardLetter.classList.remove('letter-used');
+                keyboardLetter.classList.add('letter-unused');
+            }
+            t.innerHTML = '';
+            t.classList.remove(tileLetterId);
+            t.classList.remove('tile-used');
+            t.classList.add('tile-unused');
+        }
+    }
+}
+
+
+/****************************************/
+/* BUTTON: Hint */
+/****************************************/
+
+const hintButton = document.querySelector('#hint');
+hintButton.addEventListener('click', onHintButtonClick);
+
+function removeHintTiles(tileNum) {
+
+    // remove letter in its place
+    let tileLetterId = Array.from(tileNum.classList).find(c => /letter/.test(c));
+    let keyboardLetter = document.getElementById(tileLetterId);
+    keyboardLetter.innerHTML = tileNum.innerHTML;
+    keyboardLetter.classList.remove('letter-used');
+    keyboardLetter.classList.add('letter-unused');
+    tileNum.innerHTML = '';
+    tileNum.classList.remove(tileLetterId);
+    tileNum.classList.remove('tile-used');
+    tileNum.classList.add('tile-unused');
+    // if tile we clicked on has a matching pair
+    if (tileNum.classList.contains('pair')) { removePairedLetter(tileLetterId, tileNum.id); }
+
+}
+
+function doHintLogic(modeHintTiles) {
+
+    for (let i = 0; i < 2; i++) {
+
+        // check if potential hint tiles are already static
+        if (!modeHintTiles[i][0].classList.contains('tile-static')) {
+
+            // search keyboard for hint letter
+            let keyboardHintLetters = document.querySelectorAll('.letter-unused');
+            let keyboardMatchFound = 0;
+            for (let k of keyboardHintLetters) {
+                if (modeHintTiles[i][1] == k.innerHTML) {
+                    k.classList.remove('letter-unused');
+                    k.classList.add('letter-used');
+                    k.innerHTML = '';
+                    keyboardMatchFound = 1;
+                    break;
+                }
             }
 
-            boardArray[index] = null;
-            boardAnswer[index] = null;
-    
-            item.classList.remove("tile-used");
-            item.innerText = null;
-    
-        });
-
-
-        if (newButtonState == 1) {
-
-            let hintTiles = document.querySelectorAll('[class*="tile-hint"]');
-
-            hintTiles.forEach( function (item) {
-    
-                let index = getBoardIndex(item.id);
-                let letterID = boardArray[index];
-                let letter = document.getElementById(letterID);
-        
-                if (letter.classList.contains("letter-used")) {
-                    letter.classList.remove("letter-used");
-                    letter.classList.remove("letter-hint");
-                    letter.innerText = letterID.slice(-1);
-                    letter.classList.add("letter-unused");
-                }
-        
-                boardArray[index] = null;
-                boardAnswer[index] = null;
-        
-                item.classList.remove("tile-hint");
-                item.innerText = null;
-        
-            });
-
-        } 
-    
-        let doneTiles = document.querySelectorAll('[class*="tile-game-done"]');
-    
-        doneTiles.forEach( function (item) {
-    
-            item.classList.remove("tile-game-done");
-    
-        });
-    
-        let letterRemaining = document.querySelectorAll('[class*="letter-selected"]');
-    
-        if (letterRemaining.length != 0) {
-    
-            letterRemaining[0].classList.remove("letter-selected");
-        }
-
-    }
-
-}
-
-function onNewButton() {
-
-    gameDone = 0;
-    newButtonState = 1;
-
-    onClearButton(); // clears board
-
-    words = getPuzzleWords(json);
-    board = setBoard(words, difficulty);
-    checkSolution = setSolution(words);
-    letterlist = setLetterList(words);
-
-    let letters = document.querySelectorAll('[class*="letter"]');
-
-    for (let i = 1; i <= letterlist.length; i++) {
-
-        letters[i-1].id = i.toString() + letterlist[i - 1];
-        letters[i-1].innerText = letterlist[i - 1];
-
-        if (!letters[i-1].classList.contains("letter-unused")) {
-            letters[i-1].classList.add("letter-unused");
-        }
-
-    }
-
-    let tiles = document.querySelectorAll('[class*="tile"]');
-
-    for (let r = 0; r < 5; r++) {
-
-        for (let c = 0; c < 5; c++) {
-
-            let index = (5*r)+c;
-            let tile = tiles[index];
-
-            if (board[r][c] != "-") {
-
-                tile.innerText = board[r][c];
-                tile.classList.add("tile-start");
-            } 
-        }
-    }
-
-    setGivenBoardAnswer();
-
-    newButtonState = 0;
-
-}
-
-// Check Solution Here
-
-function onHintButton() {
-
-    if (gameDone == 0) {
-
-        let tiles = document.querySelectorAll('[class*="tile"]');
-        let tileHint = null;
-        let tileID = null;
-        let letterID = null;
-        let lettersHTML = document.querySelectorAll('[class*="letter"]');
-        let hintLetter = null;
-        let letterHTMLid
-
-        // find tile location for hint
-    
-        for (let i = 0; i < tiles.length; i++) {
-    
-            if (!tiles[i].classList.contains("tile-start") & !tiles[i].classList.contains("tile-hint")) {
-    
-                let nextOpen = tiles[i].id;
-                let r = "words_" + (parseInt(nextOpen[0])+1);
-                let c = parseInt(nextOpen[2]);
-                tileHint = document.getElementById(nextOpen);
-                tileID = nextOpen;
-
-                hintLetter = words[r][c].toUpperCase(); // gets hint letter;
-
-                // gets hint letter id;
-
-                for (let i = 0; i < lettersHTML.length; i++) {
-                    letterHTMLid = document.getElementById(lettersHTML[i].id);
-                    if (hintLetter == lettersHTML[i].id.slice(-1) & !letterHTMLid.classList.contains("letter-hint")) {
-                    //if (hintLetter == lettersHTML[i].id.slice(-1)) {
-                        letterID = lettersHTML[i].id;
+            // search gameboard for hint letter if not on keyboard
+            if (keyboardMatchFound == 0) {
+                let gameboardHintLetters = document.querySelectorAll('.tile-used');
+                // remove tile from gameboard
+                for (let g of gameboardHintLetters) {
+                    if (modeHintTiles[i][1] == g.innerHTML) {
+                        let tileLetterId = Array.from(g.classList).find(c => /letter/.test(c));
+                        g.innerHTML = '';
+                        g.classList.remove(tileLetterId);
+                        g.classList.remove('tile-used');
+                        g.classList.add('tile-unused');
+                        if (g.classList.contains('pair')) { removePairedLetter(tileLetterId, g.id); }
                         break;
                     }
                 }
+            }
 
-                // remove tile if one already exists in the hint spot
-
-                if (tiles[i].classList.contains("tile-used")) {
-
-                    tiles[i].classList.remove("tile-used");
-                    tiles[i].innerText = null;
-                    removeBoard(tileID);
-
-                }
-
-                break;
-
+            // add hint tile to gameboard
+            modeHintTiles[i][0].classList.remove('tile-unused');
+            modeHintTiles[i][0].classList.add('tile-hint');
+            modeHintTiles[i][0].innerHTML = modeHintTiles[i][1];
+        
+            // if tile is a pair
+            if (modeHintTiles[i][0].classList.contains('pair')) {
+                let targetPair = document.getElementById(pairsDictionary[modeHintTiles[i][0].id]);
+                targetPair.classList.remove('tile-used');
+                targetPair.classList.remove('tile-unused');
+                targetPair.classList.add('tile-hint');
+                targetPair.innerHTML = modeHintTiles[i][1];
             }
         }
-
-        // remove existing tile from board (if it exists)
-        // only remove if it is not already a hint tile **********
-
-        if (boardArray.includes(letterID) & letterID != null) {
-
-            // get location of tile to remove (if pair returns first index of occurance)
-
-            let removeTileIndex = boardArray.indexOf(letterID)
-
-            let r = Math.floor(removeTileIndex/5);
-            let c = Math.floor(removeTileIndex%5);
-            let removeTileID = r + "-" + c;
-
-            let removeTile = document.getElementById(removeTileID);
-            removeTile.classList.remove("tile-used");
-            removeTile.innerText = null;
-
-            // removes paired tile (if it exists)
-
-            removeBoard(removeTileID);
-
-        }
-
-        // add correct tile to board
-
-        tileHint.innerText = hintLetter;
-        tileHint.classList.add("tile-hint");
-
-        let hintIndex = getBoardIndex(tileID);
-        boardArray[hintIndex] = letterID;
-        boardAnswer[hintIndex] = letterID.slice(-1);
-
-        if (pairedTileList.includes(tileID)) {
-
-            let pairedTile = getPair(tileID);
-            let pairedIndex = getBoardIndex(pairedTile.id);
-            boardArray[pairedIndex] = letterID;
-            boardAnswer[pairedIndex] = letterID.slice(-1);
-    
-            pairedTile.innerText = letterID.slice(-1);
-            pairedTile.classList.add("tile-hint");
-        
-        }
-
-        let letter = document.getElementById(letterID);
-        letter.classList.remove("letter-unused");
-        letter.classList.remove("letter-selected");
-        letter.classList.add("letter-used");
-        letter.classList.add("letter-hint");
-        letter.innerText = null;
-
-        // check if game is done
-    
-        if (boardAnswer.join('') == checkSolution) {
-    
-            tileArray.forEach((t) => t.classList.add("tile-game-done"));
-            gameDone = 1;
-            openModal(modal);
-    
-        }
-        
-
     }
+
 
 }
 
-function onDifficultyButton() {
+// if we have used all hints, grey out hint button and make unclickable
+// if we have not used all hints, keep hint button clickable
+function decideHintClickable() {
 
-    gameDone = 0;
-
-    let button = document.querySelectorAll('[id*="difficulty-button"]');
-    let buttonText = button[0].innerText;
-
-    if(buttonText == "HARD") {
-        button[0].innerText = "MEDIUM";
-        difficulty = "MEDIUM";
-    } else if (buttonText == "MEDIUM") {
-        button[0].innerText = "EASY";
-        difficulty = "EASY";
+    if (hintCount == 3) {
+        hintButton.removeEventListener('click', onHintButtonClick);
+        hintButton.classList.add('button-off');
     } else {
-        button[0].innerText = "HARD";
-        difficulty = "HARD";
+        hintButton.addEventListener('click', onHintButtonClick);
+        hintButton.classList.remove('button-off');
     }
-
-    let startTiles = document.querySelectorAll('[class*="tile-start"]');
-
-    startTiles.forEach( function (item) {
-        
-        item.classList.remove("tile-start");
-        item.innerText = null;
-
-    });
-    
-    let usedTiles = document.querySelectorAll('[class*="tile-used"]');
-
-    usedTiles.forEach( function (item) {
-
-        let index = getBoardIndex(item.id);
-        boardArray[index] = null;
-        boardAnswer[index] = null;
-        item.classList.remove("tile-used");
-        item.innerText = null;
-
-    });
-
-    let hintTiles = document.querySelectorAll('[class*="tile-hint"]');
-
-    hintTiles.forEach( function (item) {
-
-        let index = getBoardIndex(item.id);
-        boardArray[index] = null;
-        boardAnswer[index] = null;
-        item.classList.remove("tile-hint");
-        item.innerText = null;
-
-    });
-    
-    letterlist = setLetterList(words);
-    createLetterTiles();
-    onNewButton();
-
 }
 
-function onModeButton() {
+// first click adds letters from Medium mode, second click adds letters from Easy mode
+function onHintButtonClick() {
 
-    let button = document.querySelectorAll('[id*="mode-button"]');
-    let buttonText = button[0].innerText;
-    let buttonFormats = document.querySelectorAll('[class*="button-28"]');
+    // second (final) hint
+    if (hintCount == 2) {
+        hintCount++;
+        let tile5 = document.getElementById('tile-5');
+        let tile19 = document.getElementById('tile-19');
+        let easyHintTiles = [[tile5, letterList[4]], [tile19, letterList[18]]];
+        if(tile5.classList.contains('tile-used')) { removeHintTiles(tile5); }
+        if(tile19.classList.contains('tile-used')) { removeHintTiles(tile19); }
+        doHintLogic(easyHintTiles);
+        decideHintClickable();
+    }
 
-    if(buttonText == "NORMAL") {
-
-        button[0].innerText = "LIGHT";
-        document.getElementById("header").style.color="black";
-        document.body.style.backgroundColor="#e0e0e0";
-        //document.body.style.background="linear-gradient(#e0e0e0, #adadad)";
-
-        buttonFormats.forEach((e) => {
-            e.style.borderColor="black";
-            e.style.color="black";
-        });
-
-    } else if (buttonText == "LIGHT") {
-
-        button[0].innerText = "DARK";
-        document.getElementById("header").style.color="#bdbdbd";
-        document.body.style.backgroundColor="#262626";
-        //document.body.style.background="linear-gradient(#262626, #141626)";
-
-        buttonFormats.forEach((e) => {
-            e.style.borderColor="#bdbdbd";
-            e.style.color="#bdbdbd";
-        });
-
-    } else {
-
-        button[0].innerText = "NORMAL";
-        document.getElementById("header").style.color="white";
-        document.body.style.backgroundColor="#1e453e";
-        //document.body.style.background="linear-gradient(#1e453e, #1a2f2b)";        
-
-        buttonFormats.forEach((e) => {
-            e.style.borderColor="#ffffff";
-            e.style.color="white";
-        });
-
+    // first hint
+    if (hintCount == 1) {
+        hintCount++;
+        let tile9 = document.getElementById('tile-9');
+        let tile15 = document.getElementById('tile-15');
+        // removes tiles where hint will go, adds letters back to keyboard
+        if(tile9.classList.contains('tile-used')) { removeHintTiles(tile9); }
+        if(tile15.classList.contains('tile-used')) { removeHintTiles(tile15); }
+        let mediumHintTiles = [[tile9, letterList[8]], [tile15, letterList[14]]];
+        doHintLogic(mediumHintTiles);
     }
 
 }
 
-function onGuideButton() {
 
-    let pairedTileClass = document.querySelectorAll('[class*="tile-paired"]');
+/****************************************/
+/* BUTTON: Check */
+/****************************************/
 
-    console.log("hello");
+const checkButton = document.querySelector('#check');
+checkButton.addEventListener('click', onCheckButtonClick);
 
-    if (guideButtonState == 1) {
+function onCheckButtonClick() {
 
-        pairedTileClass.forEach((e) => {
-            e.classList.remove("color-guide-on");
-        });
-
-        guideButtonState = 0;
-
-    } else {
-
-        pairedTileClass.forEach((e) => {
-            e.classList.add("color-guide-on");
-        });
-
-        guideButtonState = 1;
+    let allTiles = document.querySelectorAll('.tile');
+    for (let i = 0; i < 25; i++) {
+        if (!allTiles[i].classList.contains('tile-static') & !allTiles[i].classList.contains('tile-hint')) {
+            if (allTiles[i].innerHTML == letterList[i]) {
+                allTiles[i].classList.remove('tile-used');
+                allTiles[i].classList.add('tile-hint');
+            }
+        }
     }
-    
 }
 
-// MODAL FUNCTIONS
 
-function openModal(modal) {
+/****************************************/
+/* BUTTON: New */
+/****************************************/
 
-    modal.classList.add('active');
-    overlay.classList.add('active');
+const newButton = document.querySelector('#new');
+newButton.addEventListener('click', onNewButtonClick);
 
-    let modalAnswer = document.getElementById('modal-answer');
-    let modalWords = [];
-
-    modalWords.push(words['words_1'].toUpperCase());
-    modalWords.push(words['words_2'].toUpperCase());
-    modalWords.push(words['words_3'].toUpperCase());
-    modalWords.push(words['words_4'].toUpperCase());
-    modalWords.push(words['words_5'].toUpperCase());
-
-    modalWords.forEach(function (w) {
-        let wordDiv = document.createElement("div");
-        wordDiv.innerText = w;
-        modalAnswer.appendChild(wordDiv);
-    });
-
-}
-  
-function closeModal(modal) {
-
-    modal.classList.remove('active');
-    overlay.classList.remove('active');
-
-    let modalAnswer = document.getElementById('modal-answer');
-    modalAnswer.textContent = null;
-
+function findClassToRemove(arr1, arr2) {
+    return arr2.filter(element => !arr1.includes(element));
 }
 
-function addModelListeners() {
+function onNewButtonClick() {
 
-    overlay.addEventListener('click', () => {
-        let modals = document.querySelectorAll('.modal.active');
-        modals.forEach(modal => { closeModal(modal); })
-    })
+    // reset hint count
+    // replace this with 'hintCount = 1;' if using other hint (other-hint-logic.js) function
+    if (modeValue == "Easy") { hintCount = 3; } 
+    else if (modeValue == "Med") { hintCount = 2; }
+    else { hintCount = 1; }
 
-    closeModalButton.forEach(button => {
-        button.addEventListener('click', () => {
-        let modalClose = button.closest('.modal'); 
-        closeModal(modalClose);
-        })
-    })
+    let currentGameboard = [];
+    let currentGameboardDOM = document.querySelectorAll('.tile');
+    for (let i of currentGameboardDOM) { currentGameboard.push(Array.from(i.classList)); }
 
-    newModalButton.forEach(button => {
-        button.addEventListener('click', () => {
-        let modalClose = button.closest('.modal'); 
-        closeModal(modalClose);
-        onNewButton();
-        })
-    })
+    for (let j = 0; j < 25; j++) {
+        currentGameboardDOM[j].innerHTML = '';
+        let removeClassList = findClassToRemove(initialGameboard[j], currentGameboard[j]);
+        for (let r of removeClassList) { currentGameboardDOM[j].classList.remove(r); }
+        if (initialGameboard[j].includes('tile-unused') & !currentGameboard[j].includes('tile-unused')) {
+            currentGameboardDOM[j].classList.add('tile-unused');
+        }
+    }
+
+    for (let k of document.querySelectorAll('.letter')) {
+        k.classList.remove('letter-used');
+        k.classList.add('letter-unused');
+    }
+
+    setRandomPuzzle(solutionData); // create initial puzzle
+    getLetterList(); // create initial letter list
+    setKeyboard(); // populate initial keyboard letters
+    setGameboard(); // populate initial gameboard letters
+    decideHintClickable(); // makes hint button clickable again
 
 }
