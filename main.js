@@ -600,8 +600,9 @@ function doHintLogic(modeHintTiles) {
 
     for (let i = 0; i < 2; i++) {
 
-        // check if potential hint tiles are already static
-        if (!modeHintTiles[i][0].classList.contains('tile-static')) {
+        // check if potential hint tiles are already static or a hint (from check)
+        if (!modeHintTiles[i][0].classList.contains('tile-static') 
+        & !modeHintTiles[i][0].classList.contains('tile-hint')) {
 
             // search keyboard for hint letter
             let keyboardHintLetters = document.querySelectorAll('.letter-unused');
@@ -648,8 +649,6 @@ function doHintLogic(modeHintTiles) {
             }
         }
     }
-
-
 }
 
 // if we have used all hints, grey out hint button and make unclickable
