@@ -441,7 +441,6 @@ nav input:checked + label{
     display: flex;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 4vh;
     margin-bottom: calc(1vh + 0.8vw);
     text-align: center;
     align-items: center;
@@ -511,3 +510,68 @@ body.jw-modal-open {
     background-color: var(--modal-dark-accent-color);
 }
 
+
+/********************************************/
+/* MODAL - GAME DONE */
+/********************************************/
+
+.gamedone-modal-body {
+    animation:fadein 1s;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 20px;
+    background-color: var(--modal-background-color);
+    width: min(70vw, 600px);
+    height: auto;
+    padding: 20px;
+    font-size: 2vh;
+    cursor: default;
+}
+
+@keyframes fadein {
+	from { opacity:0; }
+	to { opacity:1; }
+}
+
+h3.modal-word {
+
+    color: white;
+    margin-top: 0px;
+    margin-bottom: 1.2vh;
+    line-height: 100%;
+    font-weight: bolder;
+}
+
+.modal-play {
+    display: flex;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 3.5vh;
+    margin-bottom: 2vh;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid;
+    width: 90%;
+    height: 5vh;
+    border-radius: 4px;
+    font-family: sans-serif;
+    font-size: min(2vh, 24px);
+    font-weight: bold;
+    color: var(--modal-text-color);
+    border-color: var(--modal-dark-accent-color);
+    background-color: var(--modal-dark-accent-color);
+}
+
+.modal-play:hover {
+    color: var(--modal-dark-accent-color);
+    border-color: var(--modal-light-accent-color);
+    background-color: var(--modal-light-accent-color);
+}

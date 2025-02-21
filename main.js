@@ -3,7 +3,7 @@
 /* GLOBAL VARIABLES */
 /****************************************/
 
-// can ignore this error if it appears, "with" is a function from another package
+// can ignore this error if it appears, "with" is a function from another package (I think)
 import solutionDataJSON from "./data.json" with {type: "json"};
 const solutionData = JSON.parse(solutionDataJSON);
 
@@ -16,8 +16,9 @@ let puzzle = {};
 let letterSelectedBool = 0;
 let letterSelectedDiv = '';
 let hintCount = 1;
+let gameComplete = 0;
 
-// can ignore this error if it appears, "with" is a function from another package
+// can ignore this error if it appears, "with" is a function from another package (I think)
 import wordListArray from "./word_list.json" with {type: "json"};
 
 
@@ -25,10 +26,15 @@ import wordListArray from "./word_list.json" with {type: "json"};
 /* DATA: Solutions, Letter List */
 /****************************************/
 
+// console log in here
+
 function setRandomPuzzle(json) {
     var num_puzzles = Object.keys(json).length;
     var puzzle_id = Math.floor(Math.random() * num_puzzles);
     puzzle = json[puzzle_id];
+
+
+    console.log(puzzle);
 }
 
 function getLetterList() {
@@ -260,7 +266,6 @@ function setupBoardInteractions() {
             if (!e.target.classList.contains('letter')) {
     
                 // if we clicked an unused gameboard tile --> add to gameboard, remove from keyboard
-                // if the tile we clicked is a pair (class = pair) --> TO DO ******************************************
                 if (e.target.classList.contains('tile-unused')) {
 
                     e.target.innerHTML = letterSelectedDiv.innerHTML;
@@ -337,11 +342,15 @@ function checkGameWin() {
 
     if (answerWordList.every(word => wordListArray.includes(word))) {
         usedTiles.forEach(tile => { tile.classList.add('tile-complete'); });
+        gameComplete = 1;
 
         // TO DO: ADD POP UP MODAL FOR GAME COMPLETION
-        for (let w in answerWordList) {
-            console.log(answerWordList[w]);
+        for (let j = 1; j <= 5; j++) {
+            document.getElementById('modal-word-' + j).innerHTML = answerWordList[j-1];
         }
+
+        openGameDoneModal();
+
     }
 
 }
@@ -389,6 +398,35 @@ function setupHowToModal() {
 }
 
 setupHowToModal();
+
+
+/****************************************/
+/* MODAL: Game Completed */
+/****************************************/
+
+function openGameDoneModal() {
+    document.getElementById('gamedone-modal').classList.add('open');
+    document.body.classList.add('jw-modal-open');
+}
+
+function closeGameDoneModal() {
+    document.querySelector('.jw-modal.open').classList.remove('open');
+    document.body.classList.remove('jw-modal-open');
+}
+
+function setupGameDoneModal() {
+    document.addEventListener('click', event => {
+        if (event.target.id == 'gamedone-close-id') { closeGameDoneModal(); }
+        if (event.target.id == 'gamedone-modal') { closeGameDoneModal(); }
+        if (event.target.classList.contains("gamedone-modal")) { closeGameDoneModal(); }
+        if (event.target.id == 'gamedone-play-id') { 
+            closeGameDoneModal();
+            onNewButtonClick();
+        }
+    });
+}
+
+setupGameDoneModal();
 
 
 /****************************************/
@@ -514,10 +552,11 @@ clearButton.addEventListener('click', onClearButtonClick);
 
 function onClearButtonClick() {
 
-    let clearElements = document.querySelectorAll('.tile-used');
+    if (gameComplete == 0) {
 
-    for (let t of clearElements) {
-        if (!t.classList.contains('tile-complete')) {
+        let clearElements = document.querySelectorAll('.tile-used');
+
+        for (let t of clearElements) {
             let tileLetterId = Array.from(t.classList).find(c => /letter/.test(c));
             let keyboardLetter = document.getElementById(tileLetterId);
             if (keyboardLetter.classList.contains('letter-used')) {
@@ -532,7 +571,6 @@ function onClearButtonClick() {
         }
     }
 }
-
 
 /****************************************/
 /* BUTTON: Hint */
@@ -631,7 +669,7 @@ function decideHintClickable() {
 function onHintButtonClick() {
 
     // second (final) hint
-    if (hintCount == 2) {
+    if (hintCount == 2 & gameComplete == 0) {
         hintCount++;
         let tile5 = document.getElementById('tile-5');
         let tile19 = document.getElementById('tile-19');
@@ -643,7 +681,7 @@ function onHintButtonClick() {
     }
 
     // first hint
-    if (hintCount == 1) {
+    if (hintCount == 1 & gameComplete == 0) {
         hintCount++;
         let tile9 = document.getElementById('tile-9');
         let tile15 = document.getElementById('tile-15');
@@ -666,12 +704,14 @@ checkButton.addEventListener('click', onCheckButtonClick);
 
 function onCheckButtonClick() {
 
-    let allTiles = document.querySelectorAll('.tile');
-    for (let i = 0; i < 25; i++) {
-        if (!allTiles[i].classList.contains('tile-static') & !allTiles[i].classList.contains('tile-hint')) {
-            if (allTiles[i].innerHTML == letterList[i]) {
-                allTiles[i].classList.remove('tile-used');
-                allTiles[i].classList.add('tile-hint');
+    if (gameComplete == 0) {
+        let allTiles = document.querySelectorAll('.tile');
+        for (let i = 0; i < 25; i++) {
+            if (!allTiles[i].classList.contains('tile-static') & !allTiles[i].classList.contains('tile-hint')) {
+                if (allTiles[i].innerHTML == letterList[i]) {
+                    allTiles[i].classList.remove('tile-used');
+                    allTiles[i].classList.add('tile-hint');
+                }
             }
         }
     }
@@ -690,6 +730,9 @@ function findClassToRemove(arr1, arr2) {
 }
 
 function onNewButtonClick() {
+
+    // reset game status
+    gameComplete = 0;
 
     // reset hint count
     // replace this with 'hintCount = 1;' if using other hint (other-hint-logic.js) function
