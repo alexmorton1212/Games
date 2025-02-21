@@ -26,15 +26,10 @@ import wordListArray from "./word_list.json" with {type: "json"};
 /* DATA: Solutions, Letter List */
 /****************************************/
 
-// console log in here
-
 function setRandomPuzzle(json) {
     var num_puzzles = Object.keys(json).length;
     var puzzle_id = Math.floor(Math.random() * num_puzzles);
     puzzle = json[puzzle_id];
-
-
-    console.log(puzzle);
 }
 
 function getLetterList() {
@@ -327,8 +322,6 @@ function setupBoardInteractions() {
     });
 }
 
-// TO DO: ADD POP UP MODAL FOR GAME COMPLETION
-
 function checkGameWin() {
 
     let usedTiles = document.querySelectorAll('.tile');
@@ -344,15 +337,12 @@ function checkGameWin() {
         usedTiles.forEach(tile => { tile.classList.add('tile-complete'); });
         gameComplete = 1;
 
-        // TO DO: ADD POP UP MODAL FOR GAME COMPLETION
         for (let j = 1; j <= 5; j++) {
             document.getElementById('modal-word-' + j).innerHTML = answerWordList[j-1];
         }
 
         openGameDoneModal();
-
     }
-
 }
 
 setupBoardInteractions();
@@ -739,6 +729,9 @@ function onNewButtonClick() {
     else if (modeValue == "Med") { hintCount = 2; }
     else { hintCount = 1; }
 
+    // reset game complete modal words
+    for (let m = 1; m <= 5; m++) { document.getElementById('modal-word-' + m).innerHTML = ''; }
+
     let currentGameboard = [];
     let currentGameboardDOM = document.querySelectorAll('.tile');
     for (let i of currentGameboardDOM) { currentGameboard.push(Array.from(i.classList)); }
@@ -762,5 +755,4 @@ function onNewButtonClick() {
     setKeyboard(); // populate initial keyboard letters
     setGameboard(); // populate initial gameboard letters
     decideHintClickable(); // makes hint button clickable again
-
 }
