@@ -284,10 +284,12 @@ function setupBoardInteractions() {
                 } else {
 
                     // if we click on a used, static, or hint tile --> do nothing on board, keep keyboard letter selected
+                    // if we click on a tile-row --> also do nothing on board, keep keyboard letter selected
                     // otherwise --> unselect keyboard letter
                     if(!e.target.classList.contains('tile-used') 
                     & !e.target.classList.contains('tile-static') 
-                    & !e.target.classList.contains('tile-hint')) {
+                    & !e.target.classList.contains('tile-hint') 
+                    & !e.target.classList.contains('tile-row')) {
                         letterSelectedDiv.classList.remove('letter-selected');
                         letterSelectedDiv.classList.add('letter-unused');
                         letterSelectedBool = 0;
