@@ -21,6 +21,8 @@ let gameComplete = 0;
 // can ignore this error if it appears, "with" is a function from another package (I think)
 import wordListArray from "./word_list.json" with {type: "json"};
 
+// prevents double tapping to zoom on ios mobile (happened frequently when trying to place letters)
+document.ondblclick = function(e) { e.preventDefault(); }
 
 /****************************************/
 /* DATA: Solutions, Letter List */
@@ -343,6 +345,7 @@ function checkGameWin() {
             document.getElementById('modal-word-' + j).innerHTML = answerWordList[j-1];
         }
 
+        //document.getElementById('title-letterase').style.color = 'rgb(142, 175, 142)';
         openGameDoneModal();
     }
 }
@@ -522,13 +525,17 @@ function changeDisplay(v) {
         document.documentElement.style.setProperty('--background-color', 'rgb(224, 224, 224)');
         document.documentElement.style.setProperty('--accent-color', 'rgb(82, 82, 82)'); 
         document.documentElement.style.setProperty('--accent-highlight', 'rgb(104, 134, 104)'); 
-        document.documentElement.style.setProperty('--button-hover-color', 'rgb(179, 179, 179)');  
+        document.documentElement.style.setProperty('--button-hover-color', 'rgb(179, 179, 179)');
+        document.documentElement.style.setProperty('--letter-hover-color', 'rgb(255, 204, 110)'); 
+        document.documentElement.style.setProperty('--letter-hover-border', 'rgb(255, 123, 0)'); 
     }
     if (v == 'Dark') { 
         document.documentElement.style.setProperty('--background-color', 'rgb(45, 45, 45)');
         document.documentElement.style.setProperty('--accent-color', 'rgb(172, 172, 172)'); 
         document.documentElement.style.setProperty('--accent-highlight', 'rgb(179, 179, 179)'); 
-        document.documentElement.style.setProperty('--button-hover-color', 'rgb(82, 82, 82)');  
+        document.documentElement.style.setProperty('--button-hover-color', 'rgb(82, 82, 82)');
+        document.documentElement.style.setProperty('--letter-hover-color', 'rgb(181, 168, 156)'); 
+        document.documentElement.style.setProperty('--letter-hover-border', 'white'); 
     }
 }
 
@@ -654,6 +661,7 @@ function decideHintClickable() {
         hintButton.addEventListener('click', onHintButtonClick);
         hintButton.classList.remove('button-off');
     }
+
 }
 
 // first click adds letters from Medium mode, second click adds letters from Easy mode
@@ -706,6 +714,15 @@ function onCheckButtonClick() {
             }
         }
     }
+
+    // if check button has been used to fill in all hint tiles, make hint button unclickable
+    let hintTilesIndex = [5,7,9,11,15,17,19,21];
+    let hintTilesCount = 0;
+    for (let i of hintTilesIndex) { 
+        if (document.getElementById('tile-' + i).classList.contains('tile-hint') || 
+        document.getElementById('tile-' + i).classList.contains('tile-static')) { hintTilesCount++; } }
+    if (hintTilesCount == hintTilesIndex.length) { hintCount = 3; decideHintClickable(); }
+
 }
 
 

@@ -6,6 +6,7 @@
 * {
     /* prevents mobile zoom on double clicks */
     touch-action: manipulation;
+    user-select: none;
 }
 
 :root {
@@ -16,6 +17,7 @@
     --button-hover-color:rgb(179, 179, 179);
     --static-tile-color: rgb(142, 175, 142);
     --letter-hover-color: rgb(255, 204, 110);
+    --letter-hover-border: rgb(255, 123, 0);
 
     --modal-background-color: rgb(130, 168, 145);
     --modal-light-accent-color: rgb(194, 225, 195);
@@ -366,7 +368,7 @@ nav input:checked + label{
 }
 
 .letter.letter-selected {
-    border-color: rgb(255, 123, 0);
+    border-color: var(--letter-hover-border);
     background-color: var(--letter-hover-color);
     color: black;
 }
