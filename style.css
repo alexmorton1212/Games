@@ -135,7 +135,8 @@ nav input{
 }
 
 nav label{
-    font-size: max(calc(1.4vh + 0.4vw), 18px);
+    font-size: min(calc(1.8vh + 0.2vw), 72px);
+    /* min(calc(1.4vh + 0.4vw), 72px) */
     font-weight: 550;
     font-family: sans-serif;
     padding: max(calc(1vh + 0.1vw), 8px) max(1.8vw, 8px);
@@ -191,12 +192,13 @@ nav input:checked + label{
     cursor: pointer;
     font-family: sans-serif;
     box-sizing: border-box;
-    font-size: max(calc(1.4vh + 0.4vw), 18px);
+    font-size: min(calc(1.8vh + 0.2vw), 72px);
     font-weight: 550;
     color: var(--accent-color);
     border-color: var(--accent-color);
     background-color: var(--background-color);
 }
+
 
 @media (hover: hover) {
     .click-buttons:hover {
@@ -388,7 +390,6 @@ nav input:checked + label{
     background-color: var(--modal-text-color);
     cursor:pointer;
 }
-
 
 @media (hover: hover) {
     .letter:hover {
