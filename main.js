@@ -650,8 +650,8 @@ function doHintLogic(modeHintTiles) {
                 setTimeout(() => { 
                     targetPair.classList.remove('hint-flash-correct');
                     //targetPair.classList.remove('tile-used'); // idk why this was here
-                    targetPair.classList.remove('tile-unused');
                     targetPair.classList.add('tile-hint');
+                    targetPair.classList.remove('tile-unused');
                 }, 1000);
             }
         }
