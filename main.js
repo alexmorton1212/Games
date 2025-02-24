@@ -449,6 +449,18 @@ function setupModeRadio() {
     }
 }
 
+function disableModeRadio() {
+
+    let modeValueList = document.querySelectorAll('input[name="x"]');
+    for(let m of modeValueList) { m.disabled = true; };
+}
+
+function enableModeRadio() {
+
+    let modeValueList = document.querySelectorAll('input[name="x"]');
+    for(let m of modeValueList) { m.disabled = false; };
+}
+
 function changeMode(mode) {
 
     if (mode == 'Easy') {
@@ -597,6 +609,10 @@ function removeHintTiles(tileNum) {
 
 function doHintLogic(modeHintTiles) {
 
+    // prevent rapidly clicking hint then switching difficulty / clicking new game
+    disableModeRadio(); setTimeout(() => { enableModeRadio(); }, 1400);
+    disableNewButton(); setTimeout(() => { enableNewButton(); }, 1400);
+
     for (let i = 0; i < 2; i++) {
 
         // check if potential hint tiles are already static or a hint (from check)
@@ -650,7 +666,6 @@ function doHintLogic(modeHintTiles) {
                 setTimeout(() => {
                     targetPair.classList.add('tile-hint');
                     targetPair.classList.remove('hint-flash-correct');
-                    //targetPair.classList.remove('tile-used'); // idk why this was here
                     targetPair.classList.remove('tile-unused');
                 }, 950);
             }
@@ -698,7 +713,6 @@ function onHintButtonClick() {
         let mediumHintTiles = [[tile9, letterList[8]], [tile15, letterList[14]]];
         doHintLogic(mediumHintTiles);
     }
-
 }
 
 
@@ -712,6 +726,11 @@ checkButton.addEventListener('click', onCheckButtonClick);
 function onCheckButtonClick() {
 
     if (gameComplete == 0) {
+
+        // prevent rapidly clicking hint then switching difficulty / clicking new game
+        disableModeRadio(); setTimeout(() => { enableModeRadio(); }, 1400);
+        disableNewButton(); setTimeout(() => { enableNewButton(); }, 1400);
+
         let allTiles = document.querySelectorAll('.tile');
         for (let i = 0; i < 25; i++) {
             if (!allTiles[i].classList.contains('tile-static') & !allTiles[i].classList.contains('tile-hint')) {
@@ -725,7 +744,9 @@ function onCheckButtonClick() {
                 } else {
                     if (allTiles[i].classList.contains('tile-used')) {
                         allTiles[i].classList.add('check-flash-wrong');
-                        setTimeout(() => { allTiles[i].classList.remove('check-flash-wrong'); }, 1000);
+                        setTimeout(() => { 
+                            allTiles[i].classList.remove('check-flash-wrong'); 
+                        }, 950);
                     }
                 }
             }
@@ -753,6 +774,10 @@ newButton.addEventListener('click', onNewButtonClick);
 function findClassToRemove(arr1, arr2) {
     return arr2.filter(element => !arr1.includes(element));
 }
+
+function disableNewButton() { newButton.disabled = true; }
+
+function enableNewButton() { newButton.disabled = false; }
 
 function onNewButtonClick() {
 
@@ -791,4 +816,5 @@ function onNewButtonClick() {
     setKeyboard(); // populate initial keyboard letters
     setGameboard(); // populate initial gameboard letters
     decideHintClickable(); // makes hint button clickable again
+    
 }
