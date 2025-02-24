@@ -526,16 +526,16 @@ function changeDisplay(v) {
         document.documentElement.style.setProperty('--accent-color', 'rgb(82, 82, 82)'); 
         document.documentElement.style.setProperty('--accent-highlight', 'rgb(104, 134, 104)'); 
         document.documentElement.style.setProperty('--button-hover-color', 'rgb(179, 179, 179)');
-        document.documentElement.style.setProperty('--letter-hover-color', 'rgb(255, 204, 110)'); 
-        document.documentElement.style.setProperty('--letter-hover-border', 'rgb(255, 123, 0)'); 
+        //document.documentElement.style.setProperty('--letter-hover-color', 'rgb(255, 204, 110)'); 
+        //document.documentElement.style.setProperty('--letter-hover-border', 'rgb(255, 123, 0)'); 
     }
     if (v == 'Dark') { 
         document.documentElement.style.setProperty('--background-color', 'rgb(45, 45, 45)');
         document.documentElement.style.setProperty('--accent-color', 'rgb(172, 172, 172)'); 
         document.documentElement.style.setProperty('--accent-highlight', 'rgb(179, 179, 179)'); 
         document.documentElement.style.setProperty('--button-hover-color', 'rgb(82, 82, 82)');
-        document.documentElement.style.setProperty('--letter-hover-color', 'rgb(181, 168, 156)'); 
-        document.documentElement.style.setProperty('--letter-hover-border', 'white'); 
+        //document.documentElement.style.setProperty('--letter-hover-color', 'rgb(181, 168, 156)'); 
+        //document.documentElement.style.setProperty('--letter-hover-border', 'white'); 
     }
 }
 
@@ -637,22 +637,22 @@ function doHintLogic(modeHintTiles) {
             modeHintTiles[i][0].classList.add('hint-flash-correct');
             modeHintTiles[i][0].innerHTML = modeHintTiles[i][1];
             setTimeout(() => { 
-                modeHintTiles[i][0].classList.remove('hint-flash-correct');
                 modeHintTiles[i][0].classList.add('tile-hint');
+                modeHintTiles[i][0].classList.remove('hint-flash-correct');
                 modeHintTiles[i][0].classList.remove('tile-unused');
-            }, 1000);
+            }, 950);
 
             // if tile is a pair
             if (modeHintTiles[i][0].classList.contains('pair')) {
                 let targetPair = document.getElementById(pairsDictionary[modeHintTiles[i][0].id]);
                 targetPair.classList.add('hint-flash-correct');
                 targetPair.innerHTML = modeHintTiles[i][1];
-                setTimeout(() => { 
+                setTimeout(() => {
+                    targetPair.classList.add('tile-hint');
                     targetPair.classList.remove('hint-flash-correct');
                     //targetPair.classList.remove('tile-used'); // idk why this was here
-                    targetPair.classList.add('tile-hint');
                     targetPair.classList.remove('tile-unused');
-                }, 1000);
+                }, 950);
             }
         }
     }
@@ -717,11 +717,11 @@ function onCheckButtonClick() {
             if (!allTiles[i].classList.contains('tile-static') & !allTiles[i].classList.contains('tile-hint')) {
                 if (allTiles[i].innerHTML == letterList[i]) {
                     allTiles[i].classList.add('check-flash-correct');
-                    setTimeout(() => { 
-                        allTiles[i].classList.remove('check-flash-correct'); 
-                        allTiles[i].classList.add('tile-hint');
+                    setTimeout(() => {
                         allTiles[i].classList.remove('tile-used');
-                    }, 1000);
+                        allTiles[i].classList.add('tile-hint');
+                        allTiles[i].classList.remove('check-flash-correct'); 
+                    }, 950);
                 } else {
                     if (allTiles[i].classList.contains('tile-used')) {
                         allTiles[i].classList.add('check-flash-wrong');
