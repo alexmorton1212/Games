@@ -213,9 +213,39 @@ nav input:checked + label{
     padding: max(calc(1vh + 0.1vw), 8px) max(2vw, 16px);
 }
 
+.hint-flash-correct {
+    animation: flash-animation-hint 1s ease-in-out;
+}
+  
+@keyframes flash-animation-hint {
+    0% { opacity: 1; color: transparent; }
+    50% { opacity: 0.25; }
+    100% { opacity: 1; border-color: var(--static-tile-color); background-color: var(--static-tile-color); }
+}
+
 .check-button {
     margin-left: max(0.8vw, 7px);
     padding: max(calc(1vh + 0.1vw), 8px) max(1.8vw, 9px);
+}
+
+.check-flash-wrong {
+    animation: flash-animation-wrong 1s ease-in-out;
+}
+  
+@keyframes flash-animation-wrong {
+    0% { opacity: 1; }
+    50% { opacity: 0.25; }
+    100% { opacity: 1; }
+}
+
+.check-flash-correct {
+    animation: flash-animation-correct 1s ease-in-out;
+}
+  
+@keyframes flash-animation-correct {
+    0% { opacity: 1; }
+    50% { opacity: 0.25; }
+    100% { opacity: 1; border-color: var(--static-tile-color); background-color: var(--static-tile-color); }
 }
 
 .new-button {

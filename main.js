@@ -634,17 +634,25 @@ function doHintLogic(modeHintTiles) {
             }
 
             // add hint tile to gameboard
-            modeHintTiles[i][0].classList.remove('tile-unused');
-            modeHintTiles[i][0].classList.add('tile-hint');
+            modeHintTiles[i][0].classList.add('hint-flash-correct');
             modeHintTiles[i][0].innerHTML = modeHintTiles[i][1];
-        
+            setTimeout(() => { 
+                modeHintTiles[i][0].classList.remove('hint-flash-correct');
+                modeHintTiles[i][0].classList.add('tile-hint');
+                modeHintTiles[i][0].classList.remove('tile-unused');
+            }, 1000);
+
             // if tile is a pair
             if (modeHintTiles[i][0].classList.contains('pair')) {
                 let targetPair = document.getElementById(pairsDictionary[modeHintTiles[i][0].id]);
-                targetPair.classList.remove('tile-used');
-                targetPair.classList.remove('tile-unused');
-                targetPair.classList.add('tile-hint');
+                targetPair.classList.add('hint-flash-correct');
                 targetPair.innerHTML = modeHintTiles[i][1];
+                setTimeout(() => { 
+                    targetPair.classList.remove('hint-flash-correct');
+                    //targetPair.classList.remove('tile-used'); // idk why this was here
+                    targetPair.classList.remove('tile-unused');
+                    targetPair.classList.add('tile-hint');
+                }, 1000);
             }
         }
     }
@@ -708,8 +716,17 @@ function onCheckButtonClick() {
         for (let i = 0; i < 25; i++) {
             if (!allTiles[i].classList.contains('tile-static') & !allTiles[i].classList.contains('tile-hint')) {
                 if (allTiles[i].innerHTML == letterList[i]) {
-                    allTiles[i].classList.remove('tile-used');
-                    allTiles[i].classList.add('tile-hint');
+                    allTiles[i].classList.add('check-flash-correct');
+                    setTimeout(() => { 
+                        allTiles[i].classList.remove('check-flash-correct'); 
+                        allTiles[i].classList.add('tile-hint');
+                        allTiles[i].classList.remove('tile-used');
+                    }, 1000);
+                } else {
+                    if (allTiles[i].classList.contains('tile-used')) {
+                        allTiles[i].classList.add('check-flash-wrong');
+                        setTimeout(() => { allTiles[i].classList.remove('check-flash-wrong'); }, 1000);
+                    }
                 }
             }
         }
