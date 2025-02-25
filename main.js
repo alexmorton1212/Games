@@ -17,6 +17,7 @@ let letterSelectedBool = 0;
 let letterSelectedDiv = '';
 let hintCount = 1;
 let gameComplete = 0;
+let timeoutTime = 1400;
 
 // can ignore this error if it appears, "with" is a function from another package (I think)
 import wordListArray from "./word_list.json" with {type: "json"};
@@ -105,6 +106,18 @@ function makeKeyboardClickable() {
     for (let kletter of document.querySelectorAll(".letter")) {
         kletter.addEventListener("click", clickKeyboard);
     }
+}
+
+function disableKeyboard() {
+
+    let letterQ = document.querySelectorAll('.letter');
+    for(let q of letterQ) { q.removeEventListener("click", clickKeyboard); };
+}
+
+function enableKeyboard() {
+
+    let letterQ = document.querySelectorAll('.letter');
+    for(let q of letterQ) { q.addEventListener("click", clickKeyboard); };
 }
 
 function clickKeyboard() {
@@ -219,6 +232,16 @@ function setGameboard() {
 
 }
 
+function disableGameboard() {
+
+    document.removeEventListener('click', makeGameboardClickable);
+}
+
+function enableGameboard() {
+
+    document.addEventListener('click', makeGameboardClickable);
+}
+
 setGameboard(); // populate initial gameboard letters
 
 
@@ -251,79 +274,82 @@ function removePairedLetter(tlid, etid) {
     targetPair.classList.add('tile-unused');
 }
 
-function setupBoardInteractions() {
+function makeGameboardClickable(e) {
 
-    document.addEventListener('click', (e) => {
-
-        // if a letter on the keyboard is currently selected
-        if (letterSelectedBool == 1) {
+    // if a letter on the keyboard is currently selected
+    if (letterSelectedBool == 1) {
     
-            // if we click on something other than the keyboard
-            // keyboard cases get handled in the Keyboard Setup section
-            if (!e.target.classList.contains('letter')) {
-    
-                // if we clicked an unused gameboard tile --> add to gameboard, remove from keyboard
-                if (e.target.classList.contains('tile-unused')) {
+        // if we click on something other than the keyboard
+        // keyboard cases get handled in the Keyboard Setup section
+        if (!e.target.classList.contains('letter')) {
 
-                    e.target.innerHTML = letterSelectedDiv.innerHTML;
-                    e.target.classList.add(letterSelectedDiv.id);
-                    e.target.classList.remove("tile-unused");
-                    e.target.classList.add("tile-used");
+            // if we clicked an unused gameboard tile --> add to gameboard, remove from keyboard
+            if (e.target.classList.contains('tile-unused')) {
 
-                    // if tile we clicked on has a matching pair
-                    if (e.target.classList.contains('pair')) { addPairedLetter(e.target.id); }
-
-                    letterSelectedDiv.classList.remove('letter-selected');
-                    letterSelectedDiv.classList.add('letter-used');
-                    letterSelectedDiv.innerHTML = '';
-                    letterSelectedBool = 0;
-                    letterSelectedDiv = '';
-
-                    // check if all letters have been used / if solutions are correct
-                    if (document.querySelectorAll('.letter-unused').length == 0) { checkGameWin(); }
-
-                // if we click on something other than an unused tile
-                } else {
-
-                    // if we click on a used, static, or hint tile --> do nothing on board, keep keyboard letter selected
-                    // if we click on a tile-row --> also do nothing on board, keep keyboard letter selected
-                    // otherwise --> unselect keyboard letter
-                    if(!e.target.classList.contains('tile-used') 
-                    & !e.target.classList.contains('tile-static') 
-                    & !e.target.classList.contains('tile-hint') 
-                    & !e.target.classList.contains('tile-row')) {
-                        letterSelectedDiv.classList.remove('letter-selected');
-                        letterSelectedDiv.classList.add('letter-unused');
-                        letterSelectedBool = 0;
-                        letterSelectedDiv = '';
-                    }
-                }    
-            }
-        
-        // if there is NO letter selected on keyboard
-        } else {
-
-            // if tile is used --> remove tile from gameboard, add back letter to keyboard
-            // also do nothing if game is successfully completed (tile-complete)
-            // otherwise do nothing
-            if (e.target.classList.contains('tile-used') & !e.target.classList.contains('tile-complete')) {
-
-                let tileLetterId = Array.from(e.target.classList).find(c => /letter/.test(c));
-                let keyboardLetter = document.getElementById(tileLetterId);
-                keyboardLetter.innerHTML = e.target.innerHTML;
-                keyboardLetter.classList.remove('letter-used');
-                keyboardLetter.classList.add('letter-unused');
-                e.target.innerHTML = '';
-                e.target.classList.remove(tileLetterId);
-                e.target.classList.remove('tile-used');
-                e.target.classList.add('tile-unused');
+                e.target.innerHTML = letterSelectedDiv.innerHTML;
+                e.target.classList.add(letterSelectedDiv.id);
+                e.target.classList.remove("tile-unused");
+                e.target.classList.add("tile-used");
 
                 // if tile we clicked on has a matching pair
-                if (e.target.classList.contains('pair')) { removePairedLetter(tileLetterId, e.target.id); }
+                if (e.target.classList.contains('pair')) { addPairedLetter(e.target.id); }
 
-            }
+                letterSelectedDiv.classList.remove('letter-selected');
+                letterSelectedDiv.classList.add('letter-used');
+                letterSelectedDiv.innerHTML = '';
+                letterSelectedBool = 0;
+                letterSelectedDiv = '';
+
+                // check if all letters have been used / if solutions are correct
+                if (document.querySelectorAll('.letter-unused').length == 0) { checkGameWin(); }
+
+            // if we click on something other than an unused tile
+            } else {
+
+                // if we click on a used, static, or hint tile --> do nothing on board, keep keyboard letter selected
+                // if we click on a tile-row --> also do nothing on board, keep keyboard letter selected
+                // otherwise --> unselect keyboard letter
+                if(!e.target.classList.contains('tile-used') 
+                & !e.target.classList.contains('tile-static') 
+                & !e.target.classList.contains('tile-hint') 
+                & !e.target.classList.contains('tile-row')) {
+                    letterSelectedDiv.classList.remove('letter-selected');
+                    letterSelectedDiv.classList.add('letter-unused');
+                    letterSelectedBool = 0;
+                    letterSelectedDiv = '';
+                }
+            }    
         }
-    });
+    
+    // if there is NO letter selected on keyboard
+    } else {
+
+        // if tile is used --> remove tile from gameboard, add back letter to keyboard
+        // also do nothing if game is successfully completed (tile-complete)
+        // otherwise do nothing
+        if (e.target.classList.contains('tile-used') & !e.target.classList.contains('tile-complete')) {
+
+            let tileLetterId = Array.from(e.target.classList).find(c => /letter/.test(c));
+            let keyboardLetter = document.getElementById(tileLetterId);
+            keyboardLetter.innerHTML = e.target.innerHTML;
+            keyboardLetter.classList.remove('letter-used');
+            keyboardLetter.classList.add('letter-unused');
+            e.target.innerHTML = '';
+            e.target.classList.remove(tileLetterId);
+            e.target.classList.remove('tile-used');
+            e.target.classList.add('tile-unused');
+
+            // if tile we clicked on has a matching pair
+            if (e.target.classList.contains('pair')) { removePairedLetter(tileLetterId, e.target.id); }
+
+        }
+    }
+}
+
+function setupBoardInteractions() {
+
+    document.addEventListener('click', makeGameboardClickable);
+
 }
 
 function checkGameWin() {
@@ -561,6 +587,14 @@ setupDisplayRadio();
 const clearButton = document.querySelector('#clear');
 clearButton.addEventListener('click', onClearButtonClick);
 
+function disableClearButton() { 
+    clearButton.disabled = true; 
+}
+
+function enableClearButton() { 
+    clearButton.disabled = false; 
+}
+
 function onClearButtonClick() {
 
     if (gameComplete == 0) {
@@ -607,11 +641,23 @@ function removeHintTiles(tileNum) {
 
 }
 
+function disableHintButton() { 
+    hintButton.disabled = true; 
+}
+
+function enableHintButton() { 
+    hintButton.disabled = false; 
+}
+
 function doHintLogic(modeHintTiles) {
 
     // prevent rapidly clicking hint then switching difficulty / clicking new game
-    disableModeRadio(); setTimeout(() => { enableModeRadio(); }, 1400);
-    disableNewButton(); setTimeout(() => { enableNewButton(); }, 1400);
+    disableModeRadio(); setTimeout(() => { enableModeRadio(); }, timeoutTime);
+    disableNewButton(); setTimeout(() => { enableNewButton(); }, timeoutTime);
+    disableCheckButton(); setTimeout(() => { enableCheckButton(); }, timeoutTime);
+    disableClearButton(); setTimeout(() => { enableClearButton(); }, timeoutTime);
+    disableKeyboard(); setTimeout(() => { enableKeyboard(); }, timeoutTime);
+    disableGameboard(); setTimeout(() => { enableGameboard(); }, timeoutTime);
 
     for (let i = 0; i < 2; i++) {
 
@@ -723,13 +769,25 @@ function onHintButtonClick() {
 const checkButton = document.querySelector('#check');
 checkButton.addEventListener('click', onCheckButtonClick);
 
+function disableCheckButton() { 
+    checkButton.disabled = true; 
+}
+
+function enableCheckButton() { 
+    checkButton.disabled = false; 
+}
+
 function onCheckButtonClick() {
 
     if (gameComplete == 0) {
 
-        // prevent rapidly clicking hint then switching difficulty / clicking new game
-        disableModeRadio(); setTimeout(() => { enableModeRadio(); }, 1400);
-        disableNewButton(); setTimeout(() => { enableNewButton(); }, 1400);
+        // prevent rapidly clicking hint then trying to hit other buttons
+        disableModeRadio(); setTimeout(() => { enableModeRadio(); }, timeoutTime);
+        disableNewButton(); setTimeout(() => { enableNewButton(); }, timeoutTime);
+        disableHintButton(); setTimeout(() => { enableHintButton(); }, timeoutTime);
+        disableClearButton(); setTimeout(() => { enableClearButton(); }, timeoutTime);
+        disableKeyboard(); setTimeout(() => { enableKeyboard(); }, timeoutTime);
+        disableGameboard(); setTimeout(() => { enableGameboard(); }, timeoutTime);
 
         let allTiles = document.querySelectorAll('.tile');
         for (let i = 0; i < 25; i++) {
@@ -775,9 +833,13 @@ function findClassToRemove(arr1, arr2) {
     return arr2.filter(element => !arr1.includes(element));
 }
 
-function disableNewButton() { newButton.disabled = true; }
+function disableNewButton() { 
+    newButton.disabled = true; 
+}
 
-function enableNewButton() { newButton.disabled = false; }
+function enableNewButton() { 
+    newButton.disabled = false; 
+}
 
 function onNewButtonClick() {
 
@@ -818,3 +880,4 @@ function onNewButtonClick() {
     decideHintClickable(); // makes hint button clickable again
     
 }
+
