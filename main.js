@@ -811,13 +811,15 @@ function onCheckButtonClick() {
         }
     }
 
-    // if check button has been used to fill in all hint tiles, make hint button unclickable
-    let hintTilesIndex = [5,7,9,11,15,17,19,21];
-    let hintTilesCount = 0;
-    for (let i of hintTilesIndex) { 
-        if (document.getElementById('tile-' + i).classList.contains('tile-hint') || 
-        document.getElementById('tile-' + i).classList.contains('tile-static')) { hintTilesCount++; } }
-    if (hintTilesCount == hintTilesIndex.length) { hintCount = 3; decideHintClickable(); }
+    setTimeout(() => { 
+        // if check button has been used to fill in all hint tiles, make hint button unclickable
+        let hintTilesIndex = [5,7,9,11,15,17,19,21];
+        let hintTilesCount = 0;
+        for (let i of hintTilesIndex) { 
+            if (document.getElementById('tile-' + i).classList.contains('tile-hint') || 
+            document.getElementById('tile-' + i).classList.contains('tile-static')) { hintTilesCount++; console.log(hintTilesCount); } }
+        if (hintTilesCount == hintTilesIndex.length) { hintCount = 3; decideHintClickable(); }
+    }, 950);
 
 }
 
