@@ -4,7 +4,7 @@
 /****************************************/
 
 // can ignore this error if it appears, "with" is a function from another package (I think)
-import solutionDataJSON from "./data.json" with {type: "json"};
+import solutionDataJSON from "./Data/double_data.json" with {type: "json"};
 const solutionData = JSON.parse(solutionDataJSON);
 
 let initialGameboard = [];
@@ -20,7 +20,7 @@ let gameComplete = 0;
 let timeoutTime = 1400;
 
 // can ignore this error if it appears, "with" is a function from another package (I think)
-import wordListArray from "./word_list.json" with {type: "json"};
+import wordListArray from "./Data/double_word_list.json" with {type: "json"};
 
 // prevents double tapping to zoom on ios mobile (happened frequently when trying to place letters)
 document.ondblclick = function(e) { e.preventDefault(); }
@@ -817,7 +817,7 @@ function onCheckButtonClick() {
         let hintTilesCount = 0;
         for (let i of hintTilesIndex) { 
             if (document.getElementById('tile-' + i).classList.contains('tile-hint') || 
-            document.getElementById('tile-' + i).classList.contains('tile-static')) { hintTilesCount++; console.log(hintTilesCount); } }
+            document.getElementById('tile-' + i).classList.contains('tile-static')) { hintTilesCount++; } }
         if (hintTilesCount == hintTilesIndex.length) { hintCount = 3; decideHintClickable(); }
     }, 950);
 
