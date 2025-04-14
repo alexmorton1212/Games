@@ -38,23 +38,25 @@ a {
     
 }
 
+@media (hover: hover) {
+    a:hover {
+        background: none;
+        border-color: rgb(168, 168, 168);
+        color: rgb(168, 168, 168);
+    }
+
+    a.disable:hover {
+        background-color: lightgrey;
+        border-color: lightgrey;
+        color: white;
+        cursor: default;
+    }
+}
+
 a.disable {
     background-color: lightgrey;
     border-color: lightgrey;
     pointer-events: none;
-}
-
-a:hover {
-    background: none;
-    border-color: rgb(168, 168, 168);
-    color: rgb(168, 168, 168);
-}
-
-a.disable:hover {
-    background-color: lightgrey;
-    border-color: lightgrey;
-    color: white;
-    cursor: default;
 }
 
 .title p {
