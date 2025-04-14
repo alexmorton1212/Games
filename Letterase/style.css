@@ -61,7 +61,7 @@ html, body {
     justify-content: center;
     text-align: center;
     line-height: 6vh;
-    font-size: min(4vh, 60px);
+    font-size: min(4.8vh, 60px);
     font-family: sans-serif;
     font-weight: 400;
     letter-spacing: 1.2vw;
