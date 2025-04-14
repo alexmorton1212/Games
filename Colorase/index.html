@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css"/>
+    <link rel="shortcut icon" href="Letterase-FavIcon3.png">
+</head>
+
+<body>
+
+    <div class="title">
+        <p id="title-id">COLORASE</p>
+    </div>
+
+    <div class="buttons">
+        <nav class="display" id="display-id">
+            <input type="radio" id="y1" value="Light" name="y" checked="checked"/>
+            <label for="y1" id="light">Light</label>
+            <input type="radio" id="y2" value="Dark" name="y"/>
+            <label for="y2" id="dark">Dark</label>
+        </nav>
+        <!--<button class="click-buttons hint-button" type="button" id="hint">Hint</button>-->
+        <button class="click-buttons new-button" type="button" id="new">New</button>
+        <button class="click-buttons guide-button" type="button" id="guide">Guide</button>
+    </div>
+
+    <div class="game">
+        <div class="game-container">
+            <div class="tile-row" id="tile-row-1">
+                <div class="tile tile-answer" id="tile-answer-1"></div>
+                <div class="tile tile-answer" id="tile-answer-2"></div>
+                <div class="tile tile-answer" id="tile-answer-3"></div>
+            </div>
+            <div class="tile-row" id="tile-row-2">
+                <div class="tile tile-answer" id="tile-answer-4"></div>
+                <div class="tile tile-regular tile-unused" id="tile-1"></div>
+                <div class="tile tile-regular tile-unused" id="tile-2"></div>
+                <div class="tile tile-regular tile-unused" id="tile-3"></div>
+                <div class="tile tile-blend" id="tile-blend-1"></div>
+            </div>
+            <div class="tile-row" id="tile-row-3">
+                <div class="tile tile-answer" id="tile-answer-5"></div>
+                <div class="tile tile-regular tile-unused" id="tile-4"></div>
+                <div class="tile tile-regular tile-unused" id="tile-5"></div>
+                <div class="tile tile-regular tile-unused" id="tile-6"></div>
+                <div class="tile tile-blend" id="tile-blend-2"></div>
+            </div>
+            <div class="tile-row" id="tile-row-4">
+                <div class="tile tile-answer" id="tile-answer-6"></div>
+                <div class="tile tile-regular tile-unused" id="tile-7"></div>
+                <div class="tile tile-regular tile-unused" id="tile-8"></div>
+                <div class="tile tile-regular tile-unused" id="tile-9"></div>
+                <div class="tile tile-blend" id="tile-blend-3"></div>
+            </div>
+            <div class="tile-row" id="tile-row-5">
+                <div class="tile tile-blend" id="tile-blend-4"></div>
+                <div class="tile tile-blend" id="tile-blend-5"></div>
+                <div class="tile tile-blend" id="tile-blend-6"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="keyboard">
+        <div class="keyboard-container">
+            <div class="color-row" id="color-row-1">
+                <div class="color color-unused" id="color-1"></div>
+                <div class="color color-unused" id="color-2"></div>
+                <div class="color color-unused" id="color-3"></div>
+                <div class="color color-unused" id="color-4"></div>
+                <div class="color color-unused" id="color-5"></div>
+                <div class="color color-unused" id="color-6"></div>
+            </div>
+            <div class="color-row" id="color-row-2">
+                <div class="color color-unused" id="color-7"></div>
+                <div class="color color-unused" id="color-8"></div>
+                <div class="color color-unused" id="color-9"></div>
+                <div class="color color-unused" id="color-10"></div>
+                <div class="color color-unused" id="color-11"></div>
+                <div class="color color-unused" id="color-12"></div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+<script type="module" src="main.js"></script>
+
+</html>
