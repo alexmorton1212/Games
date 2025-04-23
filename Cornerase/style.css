@@ -1,0 +1,643 @@
+
+/********************************************/
+/* GENERAL */
+/********************************************/
+
+* {
+    /* prevents mobile zoom on double clicks */
+    touch-action: manipulation;
+    user-select: none;
+}
+
+:root {
+
+    --background-color:rgb(224, 224, 224);
+    --accent-color:rgb(82, 82, 82);
+    --accent-highlight:rgb(104, 134, 104);
+    --button-hover-color:rgb(179, 179, 179);
+    --static-tile-color: rgb(142, 175, 142);
+    --letter-hover-color: rgb(255, 204, 110);
+    --letter-hover-border: rgb(255, 123, 0);
+
+    --modal-background-color: rgb(130, 168, 145);
+    --modal-light-accent-color: rgb(194, 225, 195);
+    --modal-dark-accent-color: rgb(63, 92, 71);
+    --modal-text-color: rgb(255, 255, 255);
+
+    --tile-color: rgb(172, 172, 172);
+}
+
+html, body { 
+    height: 100%; 
+    width: 100%; 
+    margin: 0; 
+    overflow: hidden;
+    background-color: var(--background-color);
+}
+
+
+/********************************************/
+/* TITLE */
+/********************************************/
+
+.title-container {
+    display: flex;   
+}
+
+.title p {
+    margin-left: 1vw;
+    color: var(--accent-color);
+    cursor: default;
+}
+
+.title {
+    width: 94vw;
+    height: 6vh;
+    margin-top: 5vh;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 6vh;
+    font-size: min(4.8vh, 60px);
+    font-family: sans-serif;
+    font-weight: 400;
+    letter-spacing: 1.2vw;
+}
+
+#title-letterase-2 {
+    opacity: 40%;
+}
+
+.title-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding-bottom: 0.25vh;
+}
+
+.howto-button {
+    border: max(0.2vw, 2.8px) solid;
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    background-color: transparent;
+    /* width: max(calc(4vh + 0.2vw), 30px); */
+    width: min(calc(3.6vh + 0.5vw), 72px);
+    height: min(calc(3.6vh + 0.5vw), 72px);
+    border-radius: 50%;
+    cursor: pointer;
+    font-family: sans-serif;
+    /*font-size: max(calc(2vh + 0.2vw), 20px);*/
+    font-size: min(calc(2vh + 0.4vw), 72px);
+    font-weight: 600;
+    padding-left: 0%;
+    padding-right: 0%;
+}
+
+.howto-button:hover{
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--background-color);
+}
+
+
+/********************************************/
+/* TOGGLE BUTTONS */
+/* Easy-Medium-Hard AND Light-Dark*/
+/********************************************/
+
+.toggles {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 90vw;
+    height: 5vh;
+    margin-top: 2.5vh;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+nav{
+    width: fit-content;
+    border: 2.5px solid;
+    border-color: var(--accent-color);
+    background-color: var(--background-color);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: no-wrap;
+}
+
+.difficulty {
+    margin-right: max(0.8vw, 7px);
+}
+
+nav input{ 
+    display: none; 
+}
+
+nav label{
+    font-size: min(calc(1.8vh + 0.2vw), 72px);
+    /* min(calc(1.4vh + 0.4vw), 72px) */
+    font-weight: 550;
+    font-family: sans-serif;
+    padding: min(calc(1vh + 0.1vw), 10px) max(1.8vw, 8px);
+    border-right: 2.5px solid var(--accent-color);
+    color: var(--accent-color);
+    cursor: pointer;
+}
+
+nav label[for=x2]{
+    padding: min(calc(1vh + 0.1vw), 10px) max(1.8vw, 12px);
+}
+
+nav label:last-of-type{ 
+    border-right: 0;
+}
+
+@media (hover: hover) {
+    nav label:hover{
+        /* border-color: white; */
+        background: var(--button-hover-color);
+    }
+}
+
+nav input:checked + label{
+    background: var(--accent-color);
+    color: var(--background-color);
+}
+
+
+/********************************************/
+/* CLICK BUTTONS */
+/* Clear AND Hint AND New*/
+/********************************************/
+
+.buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 90vw;
+    height: 5vh;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 2vh;
+    margin-bottom: 2vw;
+}
+
+.click-buttons {
+    width: fit-content;
+    border: 2.5px solid;
+    border-radius: 4px;
+    overflow: hidden;
+    display: inline-block;
+    cursor: pointer;
+    font-family: sans-serif;
+    box-sizing: border-box;
+    font-size: min(calc(1.8vh + 0.2vw), 72px);
+    font-weight: 550;
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+    background-color: var(--background-color);
+}
+
+
+@media (hover: hover) {
+    .click-buttons:hover {
+        background: var(--button-hover-color);
+    }
+}
+
+.clear-button {
+    margin-left: max(0.8vw, 7px);
+    padding: min(calc(1vh + 0.1vw), 10px) max(1.9vw, 12.5px);
+}
+
+.hint-button {
+    margin-left: max(0.8vw, 7px);
+    padding: min(calc(1vh + 0.1vw), 10px) max(2vw, 16px);
+}
+
+.hint-flash-correct {
+    animation: flash-animation-hint 1s ease-in-out;
+}
+  
+@keyframes flash-animation-hint {
+    0% { opacity: 1; color: transparent; }
+    50% { opacity: 0.25; }
+    100% { opacity: 1; border-color: var(--static-tile-color); background-color: var(--static-tile-color); }
+}
+
+.check-button {
+    margin-left: max(0.8vw, 7px);
+    padding: min(calc(1vh + 0.1vw), 10px) max(1.8vw, 9px);
+}
+
+.check-flash-wrong {
+    animation: flash-animation-wrong 1s ease-in-out;
+}
+  
+@keyframes flash-animation-wrong {
+    0% { opacity: 1; }
+    50% { opacity: 0.25; }
+    100% { opacity: 1; }
+}
+
+.check-flash-correct {
+    animation: flash-animation-correct 1s ease-in-out;
+}
+  
+@keyframes flash-animation-correct {
+    0% { opacity: 1; }
+    50% { opacity: 0.25; }
+    100% { opacity: 1; border-color: var(--static-tile-color); background-color: var(--static-tile-color); }
+}
+
+.new-button {
+    margin-left: max(0.8vw, 7px);
+    padding: min(calc(1vh + 0.1vw), 10px) max(2vw, 15px);
+}
+
+.button-off {
+    opacity: 30%;
+    cursor: default;
+}
+
+.button-off:hover {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+    background-color: var(--background-color);
+    opacity: 30%;
+}
+
+
+/********************************************/
+/* GAME BOARD */
+/* Grid to place letters on */
+/********************************************/
+
+.game {
+    width: 90vw;
+    height: 40vh;
+    margin-top: 1vh;
+    margin-bottom: 2vw;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tile-row {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: row;
+}
+
+.tile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: min(3vh, 40px);
+    font-weight: 550;
+    font-family: sans-serif;
+    width: min(calc(4.4vh + 1vw), 70px);
+    height: min(calc(4.4vh + 1vw), 70px);
+    border: 3px solid;
+    border-radius: 6px;
+    border-color: var(--tile-color);
+    background-color: var(--tile-color);
+    margin-left: max(0.2vw, 3px);
+    margin-right: max(0.2vw, 3px);
+    margin-top: max(0.2vw, 3px);
+    margin-bottom: max(0.2vw, 3px);
+    cursor:pointer;
+}
+
+.tile.tile-static {
+
+    border-color: var(--static-tile-color);
+    background-color: var(--static-tile-color);
+    cursor:default;
+}
+
+.tile.tile-hint {
+
+    border-color: var(--static-tile-color);
+    background-color: var(--static-tile-color);
+    cursor:default;
+}
+
+.tile.tile-used {
+
+    border-color: white;
+    background-color: white;
+
+}
+
+.tile.tile-complete {
+
+    color: var(--static-tile-color);
+    border-color: var(--static-tile-color);
+    background-color: transparent;
+    cursor: default;
+
+}
+
+.tile.tile-blank {
+
+    color: var(--background-color);
+    border-color: var(--background-color);
+    background-color: transparent;
+    cursor: default;
+
+}
+
+/********************************************/
+/* KEY BOARD */
+/* Grid with usable letters */
+/********************************************/
+
+.keyboard {
+    width: 95vw;
+    height: 20vh;
+    margin-top: 1vh;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    align-items: top;
+    justify-content: center;
+}
+
+.letter-row-1 {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+.letter-row-2 {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.letter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: min(3vh, 40px);
+    font-weight: 550;
+    font-family: sans-serif;
+    width: min(calc(4.4vh + 1vw), 70px);
+    height: min(calc(4.4vh + 1vw), 70px);
+    border: 3px solid;
+    border-radius: 6px;
+    margin-left: max(0.2vw, 2.5px);
+    margin-right: max(0.2vw, 2.5px);
+    margin-top: 0.5vh;
+    margin-bottom: 0.5vh;
+    border-color: var(--modal-text-color);
+    background-color: var(--modal-text-color);
+    cursor:pointer;
+}
+
+@media (hover: hover) {
+    .letter:hover {
+        border-color: var(--letter-hover-color);
+        background-color: var(--letter-hover-color);
+    }
+}
+
+.letter.letter-selected {
+    border-color: var(--letter-hover-border);
+    background-color: var(--letter-hover-color);
+    color: black;
+}
+
+.letter.letter-used {
+
+    border-color: var(--tile-color);
+    background-color: var(--tile-color);
+    cursor: default;
+
+}
+
+
+/********************************************/
+/* MODAL - HOW TO */
+/********************************************/
+
+.jw-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background-color: rgba(0, 0, 0, .75);
+    overflow: auto;
+    font-family: sans-serif;
+}
+
+.jw-modal h1 {
+    font-weight: 500;
+    color: var(--modal-text-color);
+}
+
+.jw-modal h2 {
+    margin-top: calc(1vh + 0.5vw);
+    font-weight: 100;
+    color: var(--modal-dark-accent-color);
+}
+
+.jw-modal h3 {
+    font-weight: 100;
+    color: var(--modal-text-color);
+}
+
+.jw-modal h4 {
+    font-weight: 100;
+    color: var(--modal-text-color);
+}
+
+.jw-modal.open {
+    display: block;
+}
+
+.howto-modal-body {
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 20px;
+    background-color: var(--modal-background-color);
+    width: min(70vw, 600px);
+    height: auto;
+    padding: 20px;
+    font-size: 2vh;
+    cursor: default;
+}
+
+.modal-close {
+    display: flex;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: calc(1vh + 0.8vw);
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid;
+    width: 90%;
+    height: 5vh;
+    border-radius: 4px;
+    font-family: sans-serif;
+    font-size: min(2vh, 24px);
+    font-weight: bold;
+    color: var(--modal-text-color);
+    border-color: var(--modal-dark-accent-color);
+    background-color: var(--modal-dark-accent-color);
+}
+
+.modal-close:hover {
+    color: var(--modal-dark-accent-color);
+    border-color: var(--modal-light-accent-color);
+    background-color: var(--modal-light-accent-color);
+}
+
+body.jw-modal-open {
+    overflow: hidden;
+    background-color: var(--background-color);
+}
+
+.howto-tile-row {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: row;
+}
+
+.howto-tile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: min(2.5vh, 40px);
+    font-weight: 550;
+    width: min(4.7vh, 55px);
+    height: min(4.7vh, 55px);
+    border: 4px solid;
+    border-radius: 6px;
+    margin-left: max(0.2vw, 2px);
+    margin-right: max(0.2vw, 2px);
+    margin-top: max(0.2vw, 2px);
+    margin-bottom: max(0.2vw, 2px);
+    border-color: var(--modal-text-color);
+    background-color: var(--modal-text-color);
+}
+
+.howto-tile.howto-tile-blank {
+
+    color: var(--modal-background-color);
+    border-color: var(--modal-background-color);
+    background-color: transparent;
+    cursor: default;
+
+}
+
+.howto-tile.howto-match {
+    border: 4px solid;
+    cursor: pointer;
+    color: var(--modal-dark-accent-color);
+    border-color: var(--modal-light-accent-color);
+    background-color: var(--modal-light-accent-color);
+}
+
+.howto-tile.corner-tile {
+    border: 4px solid;
+    cursor: pointer;
+    color: var(--modal-light-accent-color);
+    border-color: var(--modal-dark-accent-color);
+    background-color: var(--modal-dark-accent-color);
+}
+
+.howto-tile.howto-highlight {
+    border: 4px solid;
+    cursor: pointer;
+    color: var(--modal-light-accent-color);
+    border-color: var(--modal-dark-accent-color);
+    background-color: var(--modal-dark-accent-color);
+}
+
+
+/********************************************/
+/* MODAL - GAME DONE */
+/********************************************/
+
+.gamedone-modal-body {
+    animation:fadein 1s;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 20px;
+    background-color: var(--modal-background-color);
+    width: min(70vw, 600px);
+    height: auto;
+    padding: 20px;
+    font-size: 2vh;
+    cursor: default;
+}
+
+@keyframes fadein {
+	from { opacity:0; }
+	to { opacity:1; }
+}
+
+h3.modal-word {
+
+    color: white;
+    margin-top: 0px;
+    margin-bottom: 1.2vh;
+    line-height: 100%;
+    font-weight: bolder;
+}
+
+.modal-play {
+    display: flex;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 3.5vh;
+    margin-bottom: 2vh;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid;
+    width: 90%;
+    height: 5vh;
+    border-radius: 4px;
+    font-family: sans-serif;
+    font-size: min(2vh, 24px);
+    font-weight: bold;
+    color: var(--modal-text-color);
+    border-color: var(--modal-dark-accent-color);
+    background-color: var(--modal-dark-accent-color);
+}
+
+.modal-play:hover {
+    color: var(--modal-dark-accent-color);
+    border-color: var(--modal-light-accent-color);
+    background-color: var(--modal-light-accent-color);
+}
