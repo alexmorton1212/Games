@@ -47,7 +47,6 @@ function getLetterList() {
         }
     }
 
-    console.log(letterList);
 }
 
 setRandomPuzzle(solutionData); // create initial puzzle
@@ -66,20 +65,27 @@ function shuffle(array) {
     return array;
 }
 
+// TO DO: CHANGE THIS TO INCORPORATE STARTING LETTERS ***********************************
+
 function getKeyboardLetters() {
 
     let keyboardList = letterList;
     let indicesToKeep = [];
+    /*
     if (modeValue == 'Easy') { indicesToKeep = [0,1,2,3,4,7,8,9,12,13,14,17]; }
     if (modeValue == 'Med') { indicesToKeep = [0,1,2,3,4,7,8,9,12,13,14,17]; }
-    if (modeValue == 'Hard') { indicesToKeep = [0,1,2,3,4,7,8,9,12,13,14,17]; }
+    */
+    if (modeValue == 'Hard') { indicesToKeep = [1,2,3,4,7,8,9,12,13,17]; }
     return(shuffle(keyboardList.filter((_, index) => indicesToKeep.includes(index))));
 }
+
+// TO DO: CHANGE THIS TO INCORPORATE STARTING LETTERS ***********************************
 
 function setKeyboard() {
 
     let keyboardLetters = getKeyboardLetters();
 
+    /*
     if (modeValue == 'Easy') { 
         let easyIndices = [1,2,3,4,5,6,7,8,9,10,11,12];
         for (let i = 0; i < easyIndices.length; i++) {
@@ -93,9 +99,10 @@ function setKeyboard() {
             document.getElementById('letter-'+medIndices[i]).innerHTML = keyboardLetters[i];
         }
     }
+    */
 
     if (modeValue == 'Hard') { 
-        let hardIndices = [1,2,3,4,5,6,7,8,9,10,11,12];
+        let hardIndices = [1,2,3,4,5,6,7,8,9,10];
         for (let i = 0; i < hardIndices.length; i++) {
             document.getElementById('letter-'+hardIndices[i]).innerHTML = keyboardLetters[i];
         }
@@ -178,22 +185,27 @@ makeKeyboardClickable(); // add event listeners to keyboard letters
 /* GAMEBOARD: Set Up */
 /****************************************/
 
+// TO DO: CHANGE THIS TO INCORPORATE STARTING LETTERS ***********************************
+
 function getGameboardLetters() {
 
     let gameboardList = letterList;
     let indicesToKeep = [];
-    if (modeValue == 'Easy') { indicesToKeep = []; }
-    if (modeValue == 'Med') { indicesToKeep = []; }
-    if (modeValue == 'Hard') { indicesToKeep = []; }
+    //if (modeValue == 'Easy') { indicesToKeep = []; }
+    //if (modeValue == 'Med') { indicesToKeep = []; }
+    if (modeValue == 'Hard') { indicesToKeep = [0,19]; }
     return(gameboardList.filter((_, index) => indicesToKeep.includes(index)));
 }
+
+// TO DO: CHANGE THIS TO INCORPORATE STARTING LETTERS ***********************************
 
 function setGameboard() {
 
     let gameboardLetters = getGameboardLetters();
-    let tileIndices = [];
-    let indexCount = 0;
+    let tileIndices = [1,25];
+    //let indexCount = 0;
 
+    /*
     if (modeValue == 'Easy') { 
         for (let i = 0; i < tileIndices.length; i++) {
             document.getElementById('tile-'+tileIndices[i]).innerHTML = gameboardLetters[i];
@@ -216,8 +228,17 @@ function setGameboard() {
             }
         }
     }
+    */
 
     if (modeValue == 'Hard') { 
+
+        for (let i = 0; i < tileIndices.length; i++) {
+            document.getElementById('tile-'+tileIndices[i]).innerHTML = gameboardLetters[i];
+            document.getElementById('tile-'+tileIndices[i]).classList.add('tile-static');
+            document.getElementById('tile-'+tileIndices[i]).classList.remove('tile-unused');
+        }
+
+        /*
         let hardTileBlanks = [];
         for (let i = 0; i < tileIndices.length; i++) {
             if (hardTileBlanks.includes(tileIndices[i])) {
@@ -230,6 +251,7 @@ function setGameboard() {
                 document.getElementById('tile-'+tileIndices[i]).classList.remove('tile-unused');
             }
         }
+        */
     }
 
 }
@@ -356,8 +378,6 @@ function checkGameWin() {
 
     let usedTiles = document.querySelectorAll('.tile');
     let answerWordList = [];
-
-    console.log(usedTiles);
 
     let answerWord1 = '' + usedTiles[0].innerHTML + usedTiles[1].innerHTML + 
         usedTiles[2].innerHTML + usedTiles[3].innerHTML + usedTiles[4].innerHTML;
@@ -665,10 +685,18 @@ function doHintLogic(modeHintTiles) {
     // prevent rapidly clicking hint then switching difficulty / clicking new game
     disableModeRadio(); setTimeout(() => { enableModeRadio(); }, timeoutTime);
     disableNewButton(); setTimeout(() => { enableNewButton(); }, timeoutTime);
-    // disableCheckButton(); setTimeout(() => { enableCheckButton(); }, timeoutTime);
+    disableCheckButton(); setTimeout(() => { enableCheckButton(); }, timeoutTime);
     disableClearButton(); setTimeout(() => { enableClearButton(); }, timeoutTime);
     disableKeyboard(); setTimeout(() => { enableKeyboard(); }, timeoutTime);
     disableGameboard(); setTimeout(() => { enableGameboard(); }, timeoutTime);
+
+    // unselect letter from keyboard before doing any hint logic
+    if (letterSelectedBool == 1) {
+        letterSelectedDiv.classList.remove('letter-selected');
+        letterSelectedDiv.classList.add('letter-unused');
+        letterSelectedBool = 0;
+        letterSelectedDiv = '';
+    }
 
     for (let i = 0; i < 2; i++) {
 
@@ -744,6 +772,8 @@ function decideHintClickable() {
 
 }
 
+// TO DO: CHANGE HINT PLACEMENTS ***********************************
+
 // first click adds letters from Medium mode, second click adds letters from Easy mode
 function onHintButtonClick() {
 
@@ -760,15 +790,18 @@ function onHintButtonClick() {
     }
 
     // first hint
+    // 4/26/2025: this is the only hint, second hint (shown above) not used
     if (hintCount == 1 & gameComplete == 0) {
         hintCount++;
-        let tile1 = document.getElementById('tile-1');
-        let tile25 = document.getElementById('tile-25');
-        let mediumHintTiles = [[tile1, letterList[0]], [tile25, letterList[19]]];
+        hintCount++;// only doing one hint for now
+        let tile5 = document.getElementById('tile-5');
+        let tile21 = document.getElementById('tile-21');
+        let mediumHintTiles = [[tile5, letterList[4]], [tile21, letterList[9]]];
         // removes tiles where hint will go, adds letters back to keyboard
-        if(tile1.classList.contains('tile-used')) { removeHintTiles(tile1); }
-        if(tile25.classList.contains('tile-used')) { removeHintTiles(tile25); }
+        if(tile5.classList.contains('tile-used')) { removeHintTiles(tile5); }
+        if(tile21.classList.contains('tile-used')) { removeHintTiles(tile21); }
         doHintLogic(mediumHintTiles);
+        decideHintClickable();
     }
 }
 
@@ -777,10 +810,8 @@ function onHintButtonClick() {
 /* BUTTON: Check */
 /****************************************/
 
-/*
 const checkButton = document.querySelector('#check');
 checkButton.addEventListener('click', onCheckButtonClick);
-*/
 
 function disableCheckButton() { 
     checkButton.disabled = true; 
@@ -789,6 +820,9 @@ function disableCheckButton() {
 function enableCheckButton() { 
     checkButton.disabled = false; 
 }
+
+// TO DO: FIX CHECK BUTTON ***********************************
+// need to reorder letterlist so it matches tile list order
 
 function onCheckButtonClick() {
 
@@ -802,9 +836,49 @@ function onCheckButtonClick() {
         disableKeyboard(); setTimeout(() => { enableKeyboard(); }, timeoutTime);
         disableGameboard(); setTimeout(() => { enableGameboard(); }, timeoutTime);
 
-        let allTiles = document.querySelectorAll('.tile');
-        for (let i = 0; i < 25; i++) {
-            if (!allTiles[i].classList.contains('tile-static') & !allTiles[i].classList.contains('tile-hint')) {
+        // unselect letter from keyboard before doing any check logic
+        if (letterSelectedBool == 1) {
+            letterSelectedDiv.classList.remove('letter-selected');
+            letterSelectedDiv.classList.add('letter-unused');
+            letterSelectedBool = 0;
+            letterSelectedDiv = '';
+        }
+
+        // reorder letter list so it matches tile list order
+
+        let orderedLetterList = [0,1,2,3,4,6,11,7,12,8,13,9,16,17,18,14];
+        let orderedTileList = [1,2,3,4,5,6,10,11,15,16,20,21,22,23,24,25];
+
+        // let allTiles = document.querySelectorAll('.tile');
+
+        for (let i = 0; i < orderedLetterList.length; i++) {
+
+            let tileTemp = document.getElementById('tile-' + orderedTileList[i]);
+            let letterTemp = letterList[orderedLetterList[i]];
+
+            if(!tileTemp.classList.contains('tile-static') & !tileTemp.classList.contains('tile-hint')) {
+
+                if(tileTemp.innerHTML == letterTemp) {
+                    tileTemp.classList.add('check-flash-correct');
+                    setTimeout(() => {
+                        tileTemp.classList.remove('tile-used');
+                        tileTemp.classList.add('tile-hint');
+                        tileTemp.classList.remove('check-flash-correct'); 
+                    }, 950);
+                } else {
+                    if (tileTemp.classList.contains('tile-used')) {
+                        tileTemp.classList.add('check-flash-wrong');
+                        setTimeout(() => { 
+                            tileTemp.classList.remove('check-flash-wrong'); 
+                        }, 950);
+                    }
+                }
+                
+            }
+
+            /*
+
+            if (!allTiles[i].classList.contains('tile-static') & !allTiles[i].classList.contains('tile-hint') & !allTiles[i].classList.contains('tile-blank')) {
                 if (allTiles[i].innerHTML == letterList[i]) {
                     allTiles[i].classList.add('check-flash-correct');
                     setTimeout(() => {
@@ -821,12 +895,16 @@ function onCheckButtonClick() {
                     }
                 }
             }
+
+            */
         }
     }
 
+    //TO DO: FIX THIS
+
     setTimeout(() => { 
         // if check button has been used to fill in all hint tiles, make hint button unclickable
-        let hintTilesIndex = [5,7,9,11,15,17,19,21];
+        let hintTilesIndex = [5,21];
         let hintTilesCount = 0;
         for (let i of hintTilesIndex) { 
             if (document.getElementById('tile-' + i).classList.contains('tile-hint') || 

@@ -64,7 +64,7 @@ html, body {
     font-size: min(4.8vh, 60px);
     font-family: sans-serif;
     font-weight: 400;
-    letter-spacing: 1.2vw;
+    letter-spacing: 0.75vw;
 }
 
 #title-letterase-2 {
@@ -213,7 +213,7 @@ nav input:checked + label{
 }
 
 .clear-button {
-    margin-left: max(0.8vw, 7px);
+    /*margin-left: max(0.8vw, 7px);*/
     padding: min(calc(1vh + 0.1vw), 10px) max(1.9vw, 12.5px);
 }
 
@@ -398,10 +398,10 @@ nav input:checked + label{
     height: min(calc(4.4vh + 1vw), 70px);
     border: 3px solid;
     border-radius: 6px;
-    margin-left: max(0.2vw, 2.5px);
-    margin-right: max(0.2vw, 2.5px);
-    margin-top: 0.5vh;
-    margin-bottom: 0.5vh;
+    margin-left: max(0.2vw, 5px);
+    margin-right: max(0.2vw, 5px);
+    margin-top: max(0.2vw, 5px);
+    margin-bottom: max(0.2vw, 5px);
     border-color: var(--modal-text-color);
     background-color: var(--modal-text-color);
     cursor:pointer;

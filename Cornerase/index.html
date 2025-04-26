@@ -64,8 +64,8 @@
                     <h4><b>Clear</br></b><em>Remove all letters from board</em></h4>
                     <!--<h4><b>Hint</br></b><em>Reveal some letter placements</br>(Limited based on game mode and Checks used)</em></h4>-->
                     <h4><b>Hint</br></b><em>Reveal some letter placements</em></h4>
-                    <!--<h4><b>Check</br></b><em>Reveal which letters on board are currently correct</em></h4>-->
-                    <h4><b>New</br></b><em>Start new game with new letters</em></h4>
+                    <h4><b>Check</br></b><em>Reveal which letters are correct</em></h4>
+                    <!--<h4><b>New</br></b><em>Start new game with new letters</em></h4>-->
                     <button class="modal-close" id="howto-close-id">CLOSE</button>
                 </div>
             </div>
@@ -121,7 +121,7 @@
     </div>
     -->
 
-    <div class="buttons">
+    <div class="toggles" id="slay">
 
         <nav class="display" id="display-id">
             <input type="radio" id="y1" value="Light" name="y" checked="checked"/>
@@ -130,9 +130,16 @@
             <label for="y2" id="dark">Dark</label>
         </nav>
         
+        <button class="click-buttons new-button" type="button" id="new"> New </button>
+
+    </div>
+
+    <div class="buttons">
+
         <button class="click-buttons clear-button" type="button" id="clear">Clear</button>
         <button class="click-buttons hint-button" type="button" id="hint">Hint</button>
-        <button class="click-buttons new-button" type="button" id="new"> New </button>
+        <button class="click-buttons check-button" type="button" id="check">Check</button>
+
     </div>
 
     <div class="game">
@@ -183,15 +190,13 @@
                 <div class="letter letter-unused" id="letter-3"></div>
                 <div class="letter letter-unused" id="letter-4"></div>
                 <div class="letter letter-unused" id="letter-5"></div>
-                <div class="letter letter-unused" id="letter-6"></div>
             </div>
             <div class="letter-row-2" id="letter-row-2">
+                <div class="letter letter-unused" id="letter-6"></div>
                 <div class="letter letter-unused" id="letter-7"></div>
                 <div class="letter letter-unused" id="letter-8"></div>
                 <div class="letter letter-unused" id="letter-9"></div>
                 <div class="letter letter-unused" id="letter-10"></div>
-                <div class="letter letter-unused" id="letter-11"></div>
-                <div class="letter letter-unused" id="letter-12"></div>
             </div>
         </div>
     </div>
