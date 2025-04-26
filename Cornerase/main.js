@@ -75,7 +75,7 @@ function getKeyboardLetters() {
     if (modeValue == 'Easy') { indicesToKeep = [0,1,2,3,4,7,8,9,12,13,14,17]; }
     if (modeValue == 'Med') { indicesToKeep = [0,1,2,3,4,7,8,9,12,13,14,17]; }
     */
-    if (modeValue == 'Hard') { indicesToKeep = [1,2,3,4,7,8,9,12,13,17]; }
+    if (modeValue == 'Hard') { indicesToKeep = [0,1,2,3,7,8,12,13,17,19]; }
     return(shuffle(keyboardList.filter((_, index) => indicesToKeep.includes(index))));
 }
 
@@ -193,7 +193,7 @@ function getGameboardLetters() {
     let indicesToKeep = [];
     //if (modeValue == 'Easy') { indicesToKeep = []; }
     //if (modeValue == 'Med') { indicesToKeep = []; }
-    if (modeValue == 'Hard') { indicesToKeep = [0,19]; }
+    if (modeValue == 'Hard') { indicesToKeep = [4,9]; }
     return(gameboardList.filter((_, index) => indicesToKeep.includes(index)));
 }
 
@@ -202,7 +202,7 @@ function getGameboardLetters() {
 function setGameboard() {
 
     let gameboardLetters = getGameboardLetters();
-    let tileIndices = [1,25];
+    let tileIndices = [5,21];
     //let indexCount = 0;
 
     /*
@@ -794,12 +794,12 @@ function onHintButtonClick() {
     if (hintCount == 1 & gameComplete == 0) {
         hintCount++;
         hintCount++;// only doing one hint for now
-        let tile5 = document.getElementById('tile-5');
-        let tile21 = document.getElementById('tile-21');
-        let mediumHintTiles = [[tile5, letterList[4]], [tile21, letterList[9]]];
+        let tile1 = document.getElementById('tile-1');
+        let tile25 = document.getElementById('tile-25');
+        let mediumHintTiles = [[tile1, letterList[0]], [tile25, letterList[14]]];
         // removes tiles where hint will go, adds letters back to keyboard
-        if(tile5.classList.contains('tile-used')) { removeHintTiles(tile5); }
-        if(tile21.classList.contains('tile-used')) { removeHintTiles(tile21); }
+        if(tile1.classList.contains('tile-used')) { removeHintTiles(tile1); }
+        if(tile25.classList.contains('tile-used')) { removeHintTiles(tile25); }
         doHintLogic(mediumHintTiles);
         decideHintClickable();
     }
