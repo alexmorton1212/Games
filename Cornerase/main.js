@@ -904,7 +904,7 @@ function onCheckButtonClick() {
 
     setTimeout(() => { 
         // if check button has been used to fill in all hint tiles, make hint button unclickable
-        let hintTilesIndex = [5,21];
+        let hintTilesIndex = [1,25];
         let hintTilesCount = 0;
         for (let i of hintTilesIndex) { 
             if (document.getElementById('tile-' + i).classList.contains('tile-hint') || 
