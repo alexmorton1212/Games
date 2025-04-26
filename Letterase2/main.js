@@ -659,6 +659,14 @@ function doHintLogic(modeHintTiles) {
     disableKeyboard(); setTimeout(() => { enableKeyboard(); }, timeoutTime);
     disableGameboard(); setTimeout(() => { enableGameboard(); }, timeoutTime);
 
+    // unselect letter from keyboard before doing any hint logic
+    if (letterSelectedBool == 1) {
+        letterSelectedDiv.classList.remove('letter-selected');
+        letterSelectedDiv.classList.add('letter-unused');
+        letterSelectedBool = 0;
+        letterSelectedDiv = '';
+    }
+
     for (let i = 0; i < 2; i++) {
 
         // check if potential hint tiles are already static or a hint (from check)
@@ -788,6 +796,14 @@ function onCheckButtonClick() {
         disableClearButton(); setTimeout(() => { enableClearButton(); }, timeoutTime);
         disableKeyboard(); setTimeout(() => { enableKeyboard(); }, timeoutTime);
         disableGameboard(); setTimeout(() => { enableGameboard(); }, timeoutTime);
+
+        // unselect letter from keyboard before doing any hint logic
+        if (letterSelectedBool == 1) {
+            letterSelectedDiv.classList.remove('letter-selected');
+            letterSelectedDiv.classList.add('letter-unused');
+            letterSelectedBool = 0;
+            letterSelectedDiv = '';
+        }
 
         let allTiles = document.querySelectorAll('.tile');
         for (let i = 0; i < 25; i++) {
